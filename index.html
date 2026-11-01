@@ -7,7 +7,7 @@
 @media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0d1117;--fg:#e6edf3;--mut:#9aa4af;--bd:#30363d;--pn:#161b22;--ac:#58a6ff;--g:#2a313a;--ok:#3fb950;--er:#f85149}}
 :root[data-theme=dark]{--bg:#0d1117;--fg:#e6edf3;--mut:#9aa4af;--bd:#30363d;--pn:#161b22;--ac:#58a6ff;--g:#2a313a;--ok:#3fb950;--er:#f85149}
 html,body{height:100%;margin:0}body{background:var(--bg);color:var(--fg);font:13px system-ui,-apple-system,"Segoe UI",sans-serif;display:flex;flex-direction:column}
-#tb{display:flex;flex-wrap:wrap;gap:5px;padding:6px 8px;border-bottom:1px solid var(--bd);background:var(--pn);align-items:center}
+#tb{display:flex;flex-wrap:wrap;gap:5px;padding:6px 8px;border-bottom:1px solid var(--bd);background:var(--pn);align-items:center;position:relative;z-index:60}
 button,input,select,textarea{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--bd);border-radius:6px;padding:4px 8px}
 button{cursor:pointer}button.on{background:var(--ac);color:#fff;border-color:var(--ac)}button.go{background:var(--ok);color:#fff;border-color:var(--ok);font-weight:600}
 .sp{width:1px;height:20px;background:var(--bd);margin:0 3px}
@@ -29,8 +29,8 @@ table{border-collapse:collapse;width:100%}td,th{padding:1px 3px;text-align:right
 .mn{position:relative}
 .mn>button.mb{border-color:transparent;background:transparent;padding:5px 10px;font-weight:500}
 .mn>button.mb:hover,.mn.open>button.mb{background:var(--g);border-color:var(--bd)}
-.dp{position:absolute;top:calc(100% + 4px);left:0;min-width:270px;background:var(--pn);border:1px solid var(--bd);border-radius:9px;box-shadow:0 10px 30px rgba(0,0,0,.28);padding:5px;display:none;z-index:60}
-.mn.open .dp{display:block}
+.dp{position:absolute;top:calc(100% + 4px);left:0;min-width:270px;z-index:200;background:var(--pn);border:1px solid var(--bd);border-radius:9px;box-shadow:0 10px 30px rgba(0,0,0,.28);padding:5px;display:none;z-index:60}
+.mn.open .dp,.mn:hover .dp{display:block}
 .dp button{display:block;width:100%;text-align:left;border-color:transparent;background:transparent;padding:7px 9px;border-radius:6px}
 .dp button:hover{background:var(--g)}
 .dp button.on{background:var(--ac);color:#fff}
@@ -100,16 +100,25 @@ table{border-collapse:collapse;width:100%}td,th{padding:1px 3px;text-align:right
 <button type="button" id="b_rep">📄 Reporte</button>
 </div>
 <div id="tb2">
+<span class="g"><b>Plano</b> <select id="pl"><option>XY</option><option>XZ</option><option>YZ</option></select></span>
+<span class="g"><b>Unidades</b> <select id="un"><option value="IM" selected>kip · ft (Imperial)</option><option value="SI">kN · m (SI)</option></select></span>
+<span class="g">Nivel <input id="lv" type="number" value="0" step="0.5" style="width:62px"> <span class="gu" data-u="L">m</span></span>
+<span class="g">Malla <input id="gs" type="number" value="0.5" step="0.1" min="0.05" style="width:55px"> <span class="gu" data-u="L">m</span></span>
+<span class="sp"></span>
 <span class="g"><b>Muro</b> t <input id="wt" type="number" step="any" min="0.01"> <span data-u="s">mm</span> · H <input id="wh" type="number" step="any" min="0.1"> <span data-u="L">m</span></span>
 <span class="g"><b>Losa</b> t <input id="st" type="number" step="any" min="0.01"> <span data-u="s">mm</span></span>
 <span class="g"><b>Carga de área</b> q <input id="aq" type="number" step="any"> <span data-u="p">kN/m²</span></span>
+<span class="g">× ampliar <input id="df" type="number" value="1" step="0.5" min="0.1" style="width:52px"></span>
 <span id="hint"></span>
 </div>
+<input type="file" id="fo" accept=".json,application/json" style="display:none">
 <div id="hm"><div id="hmb"><b id="hmt">Ayuda</b><div id="hmc"></div><button type="button" id="hmx" style="width:100%">Cerrar</button></div></div>
-<div id="mn"><div id="cw"><canvas id="cv"></canvas><div id="st"></div></div>
+<div id="mn"><div id="cw"><canvas id="cv"></canvas><div id="stz"></div></div>
 <div id="pn"><div id="prop"></div><div id="out"></div><div class="m" style="margin-top:14px;padding-top:8px;border-top:1px solid var(--bd);font-size:11px;line-height:1.5">ZAPEL 3D · Etapa 7<br>Barras · muros · losas · zapatas y matres<br>Cargas de área · contornos · sismo ASCE 7-22 / PRBC 2018 (ELF y modal)<br>Basado en ZAPEL77P<br>Autor: Dr. Bernardo Deschapelles<br>Actualizado por el Prof. Raymond Rosa Ávila</div></div></div>
 <script>
 const $=id=>document.getElementById(id),cv=$('cv'),g=cv.getContext('2d');
+/* aviso visible si algo falla al iniciar (antes de morir en silencio) */
+addEventListener('error',ev=>{try{const t=document.getElementById('stz');if(t)t.textContent='⚠ '+ev.message}catch(e){}});
 /*==NUCLEO:INICIO==*/
 const IN=.0254,PRE=[['W12×26',12.2*IN,6.49*IN,.38*IN,.23*IN],['W14×30',13.8*IN,6.73*IN,.385*IN,.27*IN],['W16×40',16*IN,7*IN,.505*IN,.305*IN],['W18×50',18*IN,7.5*IN,.57*IN,.355*IN],['W21×62',21*IN,8.24*IN,.615*IN,.4*IN],['W24×76',23.9*IN,8.99*IN,.68*IN,.44*IN],['IPE 200',.2,.1,.0085,.0056],['IPE 300',.3,.15,.0107,.0071],['IPE 400',.4,.18,.0135,.0086]];
 const SEC={rect:['Rectangular (hormigón / maciza)',['b','Ancho b'],['h','Canto h']],T:['Viga T (hormigón)',['bf','Ancho del ala bf'],['hf','Espesor del ala hf'],['bw','Ancho del alma bw'],['h','Canto total h']],circ:['Circular maciza',['Dm','Diámetro D']],I:['Perfil I (acero)',['d','Canto d'],['bf','Ancho del ala bf'],['tf','Espesor del ala tf'],['tw','Espesor del alma tw']],tubR:['Tubo rectangular (acero)',['b','Ancho b'],['h','Canto h'],['tt','Espesor t']],tubC:['Tubo circular (acero)',['Dm','Diámetro D'],['tt','Espesor t']],poly:['Irregular (polígono)']};
@@ -909,7 +918,7 @@ function draw(){
    leyendaV(g.tit,g.uni,mn*g.esc,mx*g.esc,gi)});
  }
  const P=pj();[['X','#dc2626'],['Y','#16a34a'],['Z','#2563eb']].forEach(([l,col],k)=>{g.strokeStyle=g.fillStyle=col;g.lineWidth=2;const x=40+P[k][0]*28,y=h-40-P[k][1]*28;g.beginPath();g.moveTo(40,h-40);g.lineTo(x,y);g.stroke();g.fillText(l,x+3,y-3)});
- if(ms&&ms.p)$('st').textContent='Plano '+$('pl').value+' · x = '+(ms.p[0]*UF('L')).toFixed(2)+'  y = '+(ms.p[1]*UF('L')).toFixed(2)+'  z = '+(ms.p[2]*UF('L')).toFixed(2)+' '+UL('L')}
+ if(ms&&ms.p)$('stz').textContent='Plano '+$('pl').value+' · x = '+(ms.p[0]*UF('L')).toFixed(2)+'  y = '+(ms.p[1]*UF('L')).toFixed(2)+'  z = '+(ms.p[2]*UF('L')).toFixed(2)+' '+UL('L')}
 
 /* ---------- Interfaz ---------- */
 function resumenContorno(){
@@ -1125,7 +1134,7 @@ $('t_sel').onclick=()=>setT('sel');$('t_bar').onclick=()=>setT('bar');$('t_wal')
 $('mdsel').innerHTML=[['model','Modelo'],['def','Deformada'],['sw','σ en muros'],['mq','q en la matre'],['mMx','Mx en la matre'],['mMy','My en la matre'],['sMx','Mx en losas'],['sMy','My en losas'],['N','Axial N'],['Vy','Cortante Vy'],['Vz','Cortante Vz'],['T','Torsión T'],['My','Momento My'],['Mz','Momento Mz'],['Sz','Suelo z'],['Sy','Suelo y']].map(([k,l])=>'<option value="'+k+'">'+l+'</option>').join('');
 $('mdsel').onchange=()=>{const k=$('mdsel').value;if(k!='model'&&!res)run();if(res||k=='model')setM(k);else $('mdsel').value=mode};
 $('v_iso').onclick=()=>view(-.6,.45);$('v_xy').onclick=()=>view(0,Math.PI/2,'XY');$('v_xz').onclick=()=>view(0,0,'XZ');$('v_yz').onclick=()=>view(-Math.PI/2,0,'YZ');
-['pl','lv','gs','df'].forEach(i=>$(i).onchange=draw);$('vs').onchange=draw;$('cm').onchange=draw;
+['pl','lv','gs','df'].forEach(i=>{const e2=$(i);if(e2)e2.onchange=draw});$('vs').onchange=draw;$('cm').onchange=draw;
 /* --- menús desplegables --- */
 const MENUS=[['m_arch','m_arch_b'],['m_dib','m_dib_b'],['m_vis','m_vis_b'],['m_cal','m_cal_b'],['m_ayu','m_ayu_b']];
 function cierraMenus(salvo){MENUS.forEach(([d])=>{if(d!==salvo){const e=$(d);if(e&&e.classList)e.classList.remove('open')}})}
