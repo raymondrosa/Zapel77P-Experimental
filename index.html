@@ -94,6 +94,17 @@ button,select,input{touch-action:manipulation}
 #hmb b{font-size:15px}
 #hmc{margin:10px 0;font-size:12px;line-height:1.6}
 #hmc table{width:100%}#hmc td{padding:2px 4px}
+/* ---- Menús en celular y tableta: este bloque va AL FINAL para ganar la cascada sobre las reglas base de .dp ---- */
+@supports(height:100dvh){html,body{height:100dvh}}
+@media(max-width:760px),(hover:none) and (pointer:coarse) and (max-width:1100px){
+ .dp{position:fixed;left:6px;right:6px;top:auto;bottom:calc(6px + env(safe-area-inset-bottom,0px));min-width:0;max-height:62vh;overflow:auto;-webkit-overflow-scrolling:touch;z-index:300;box-shadow:0 -8px 32px rgba(0,0,0,.4)}
+ .mn:hover .dp{display:none}
+ .mn.open .dp{display:block}
+ .dp button{padding:12px 11px;font-size:16px}
+ .dp label.ckm{padding:12px}
+ .dp .mt{padding:8px 9px 2px}
+ .mn>button.mb{padding:8px 12px}
+}
 </style></head><body>
 <div id="tb">
 <span id="brand">ZAPEL 3D</span>
