@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es"><head><meta charset="utf-8">
+<html lang="es" data-dev="auto"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ZAPEL 3D · Pórticos, muros, losas, fundaciones y sismo (Etapa 7)</title>
 <style>
@@ -25,6 +25,28 @@ table{border-collapse:collapse;width:100%}td,th{padding:1px 3px;text-align:right
 #smw label{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:5px 0}
 #smw input,#smw select{padding:2px 6px}
 @media(max-width:760px){#mn{flex-direction:column}#pn{width:auto;max-height:40%;border-left:0;border-top:1px solid var(--bd)}}
+.dp .mt{font-size:11px;color:var(--mut);padding:6px 9px 2px;text-transform:uppercase;letter-spacing:.4px}
+@media(hover:none){.mn:hover .dp{display:none}}
+:root[data-dev=tab] #pn{width:252px}
+:root[data-dev=tab] #tb{gap:3px}
+:root[data-dev=tab] .dp button{padding:9px 9px}
+:root[data-dev=mov] #mn{flex-direction:column}
+:root[data-dev=mov] #pn{width:auto;max-height:44vh;border-left:0;border-top:1px solid var(--bd)}
+:root[data-dev=mov] #tb{gap:2px;padding:4px 5px}
+:root[data-dev=mov] #brand{display:none}
+:root[data-dev=mov] .mn>button.mb{padding:7px 9px;font-size:13px}
+:root[data-dev=mov] .mn:hover .dp{display:none}
+:root[data-dev=mov] .dp{position:fixed;left:6px;right:6px;top:auto;bottom:6px;min-width:0;max-height:64vh;overflow:auto;z-index:200}
+:root[data-dev=mov] .dp button{padding:12px 12px;font-size:14px}
+:root[data-dev=mov] .dp label.ckm{padding:12px}
+:root[data-dev=mov] #tb2{gap:10px;padding:6px;font-size:12px}
+:root[data-dev=mov] #tb2 input{width:70px}
+:root[data-dev=mov] #mdsel{min-width:120px}
+:root[data-dev=mov] #hint{display:none}
+:root[data-dev=mov] button{padding:8px 10px}
+:root[data-dev=mov] #pn{font-size:13px}
+:root[data-dev=mov] #hmb{max-height:90vh;width:100%;margin:8px;box-sizing:border-box}
+:root[data-dev=mov] .fig img{width:100%}
 #brand{font-weight:700;color:var(--ac);letter-spacing:.3px;margin-right:6px}
 .mn{position:relative}
 .mn>button.mb{border-color:transparent;background:transparent;padding:5px 10px;font-weight:500}
@@ -57,7 +79,8 @@ table{border-collapse:collapse;width:100%}td,th{padding:1px 3px;text-align:right
 <button type="button" id="b_ex2">Ejemplo: viga sobre suelo elástico</button>
 <button type="button" id="b_ex3">Ejemplo: viga de acero</button>
 <div class="sep"></div>
-<button type="button" id="b_rep2">Reporte de cálculo (PDF)</button>
+<button type="button" id="b_rep2">Reporte de cálculo (imprimir / PDF)</button>
+<button type="button" id="b_rep3">Reporte: descargar archivo HTML</button>
 </div></div>
 <div class="mn" id="m_dib"><button type="button" id="m_dib_b" class="mb">Dibujar</button><div class="dp">
 <button type="button" id="t_sel" class="on">Seleccionar</button>
@@ -82,6 +105,12 @@ table{border-collapse:collapse;width:100%}td,th{padding:1px 3px;text-align:right
 <div class="sep"></div>
 <label class="ckm"><input type="checkbox" id="vs" checked> Ver secciones</label>
 <label class="ckm"><input type="checkbox" id="cm" checked> Cotas</label>
+<div class="sep"></div>
+<div class="mt">Modo de pantalla</div>
+<button type="button" id="d_auto">Automático (según el equipo)</button>
+<button type="button" id="d_pc">Computadora</button>
+<button type="button" id="d_tab">Tableta</button>
+<button type="button" id="d_mov">Celular</button>
 </div></div>
 <div class="mn" id="m_cal"><button type="button" id="m_cal_b" class="mb">Cálculo</button><div class="dp">
 <button type="button" id="b_run2">▶ Calcular (caso gravitatorio)</button>
@@ -875,7 +904,7 @@ function draw(){
    if(res.u){g.strokeStyle='#7c3aed';g.lineWidth=2;g.setLineDash([]);
     MUROS.forEach(w=>{if(!wallGeo(w))return;g.beginPath();w.n.forEach((kk,j)=>{const q=N[kk];if(!q)return;const p=proj(q.x+res.u[6*kk]*k,q.y+res.u[6*kk+1]*k,q.z+res.u[6*kk+2]*k);j?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1])});g.closePath();g.stroke()})}
   g.fillStyle=mt;g.fillText('Deformada ampliada ×'+k0.toExponential(1)+' · δmax = '+(res.dmax*UF('d')).toPrecision(3)+' '+UL('d'),10,16)}
- if(R&&mode!='def'&&mode!='sw'&&mode!='sMx'&&mode!='sMy'&&mode!='mq'&&mode!='mMx'&&mode!='mMy'){const e=res.ext[mode],sg=['My','Mz','Sy','Sz'].includes(mode)?-1:1,col={N:'#9333ea',Vy:'#16a34a',Vz:'#16a34a',T:'#d97706',My:'#dc2626',Mz:'#dc2626',Sy:'#0891b2',Sz:'#0891b2'}[mode],ax=['Vz','My','N','Sz'].includes(mode)?'ez':'ey',k=sg*60/C.S/e;
+ if(R&&mode!='def'&&mode!='sw'&&mode!='sMx'&&mode!='sMy'&&mode!='mq'&&mode!='mMx'&&mode!='mMy'&&mode!='zq'){const e=res.ext[mode],sg=['My','Mz','Sy','Sz'].includes(mode)?-1:1,col={N:'#9333ea',Vy:'#16a34a',Vz:'#16a34a',T:'#d97706',My:'#dc2626',Mz:'#dc2626',Sy:'#0891b2',Sz:'#0891b2'}[mode],ax=['Vz','My','N','Sz'].includes(mode)?'ez':'ey',k=sg*60/C.S/e;
  res.smp.forEach(b=>{if(!b.length)return;const Pt=q=>{const o=q[mode]*k,v=q.ax[ax];return proj(q.P[0]+v[0]*o,q.P[1]+v[1]*o,q.P[2]+v[2]*o)},p0=proj(...b[0].P),p1=proj(...b.at(-1).P),Q=b.map(Pt);
   g.beginPath();g.moveTo(...p0);Q.forEach(p=>g.lineTo(...p));g.lineTo(...p1);g.closePath();g.globalAlpha=.2;g.fillStyle=col;g.fill();g.globalAlpha=1;g.strokeStyle=col;g.lineWidth=1.5;g.beginPath();Q.forEach((p,i)=>i?g.lineTo(...p):g.moveTo(...p));g.stroke();
   let im=0;b.forEach((q,i)=>{if(Math.abs(q[mode])>Math.abs(b[im][mode]))im=i});if(Math.abs(b[im][mode])>.02*e){g.fillStyle=fg;g.fillText((b[im][mode]*UF(KM[mode])).toFixed(2),Q[im][0]+4,Q[im][1]-4)}});
@@ -886,9 +915,9 @@ function draw(){
  if(poly&&poly.length){const ps=poly.map(p=>proj(p[0],p[1],polyZ));g.strokeStyle=ac;g.lineWidth=1.5;g.setLineDash([5,4]);g.beginPath();ps.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));
   if(ms&&ms.p){const q=proj(ms.p[0],ms.p[1],polyZ);g.lineTo(q[0],q[1])}g.stroke();g.setLineDash([]);g.fillStyle=ac;
   ps.forEach(p=>{g.beginPath();g.arc(p[0],p[1],3.5,0,7);g.fill()})}
- if(res&&(mode=='sw'||mode=='sMx'||mode=='sMy'||mode=='mq'||mode=='mMx'||mode=='mMy')){
+ if(res&&(mode=='sw'||mode=='sMx'||mode=='sMy'||mode=='mq'||mode=='mMx'||mode=='mMy'||mode=='zq')){
   const grupos=[];
-  if(mode=='sw'||mode=='mq'||mode=='mMx'||mode=='mMy'){
+  if(mode=='sw'||mode=='mq'||mode=='mMx'||mode=='mMy'||mode=='zq'){
    const pl=[];
    if(mode!='sw')PLATEAS.forEach((p,i)=>{const pc=plateaCalc(i);if(!pc||pc.err||!pc.gr)return;
     const R=esRect(p.pts);if(!R)return;const g2=pc.gr;
@@ -901,6 +930,18 @@ function draw(){
    if(mode=='sw')MUROS.forEach((w,i)=>{const cm=muroCampo(i);if(!cm)return;
     const P4=wallGeo(w).p.map(q=>[q.x,q.y,q.z]);mw.push({q4:P4,nu:cm.nu,nv:cm.nv,F:cm.F})});
    if(mw.length)grupos.push({tit:'σ axial del muro',uni:UL('p'),esc:UF('p'),items:mw});
+   if(mode=='zq'){
+    const zs=[];
+    ZAPATAS.forEach((z,i)=>{const pc=zapataCalc(i);if(!pc)return;const nd=N[z.n];if(!nd)return;
+     const B=pc.B,L=pc.L,nu=12,nv=12,Ix=B*L*L*L/12,Iy=L*B*B*B/12;
+     const Mx=res.R[6*z.n+3]||0,My=res.R[6*z.n+4]||0,F=[];
+     for(let a=0;a<=nu;a++){F.push([]);const x=nd.x-B/2+B*a/nu;
+      for(let b=0;b<=nv;b++){const y=nd.y-L/2+L*b/nv;
+       F[a].push(pc.P/pc.A+Mx*(y-nd.y)/Ix-My*(x-nd.x)/Iy)}}
+     const P4=[[nd.x-B/2,nd.y-L/2,nd.z],[nd.x+B/2,nd.y-L/2,nd.z],[nd.x+B/2,nd.y+L/2,nd.z],[nd.x-B/2,nd.y+L/2,nd.z]];
+     zs.push({q4:P4,nu,nv,F})});
+    if(zs.length)grupos.push({tit:'presión de contacto (zapata)',uni:UL('p'),esc:UF('p'),items:zs});
+   }
   }else{
    const ls=[];
    LOSAS.forEach((sl,si)=>{const p2=placas()[si];if(!p2)return;
@@ -928,6 +969,11 @@ function resumenContorno(){
  else if(mode=='sMx'||mode=='sMy'){const ps=placas();LOSAS.forEach((s,i)=>{const p=ps[i];if(!p)return;
   const F=mode=='sMx'?p.Mx:p.My;let a=1e30,b=-1e30;
   F.forEach(c=>c.forEach(v=>{if(v<a)a=v;if(v>b)b=v}));o.push(['L'+(i+1),mode=='sMx'?'Mx':'My',a*UF('FL')/UF('L'),b*UF('FL')/UF('L'),UL('FL')+'/'+UL('L')])})}
+ else if(mode=='zq'){ZAPATAS.forEach((z,i)=>{const pc=zapataCalc(i);if(!pc)return;const nd=N[z.n];if(!nd)return;
+   const B=pc.B,L=pc.L,Ix=B*L*L*L/12,Iy=L*B*B*B/12,Mx=res.R[6*z.n+3]||0,My=res.R[6*z.n+4]||0;let a=1e30,b=-1e30;
+   for(let k1=0;k1<=8;k1++)for(let k2=0;k2<=8;k2++){const x=nd.x-B/2+B*k1/8,y=nd.y-L/2+L*k2/8;
+    const v=pc.P/pc.A+Mx*(y-nd.y)/Ix-My*(x-nd.x)/Iy;if(v<a)a=v;if(v>b)b=v}
+   o.push(['Z'+(i+1),'q',a*UF('p'),b*UF('p'),UL('p')])})}
  else if(mode=='mq'||mode=='mMx'||mode=='mMy'){PLATEAS.forEach((p,i)=>{const pc=plateaCalc(i);if(!pc||pc.err||!pc.gr)return;const A=mode=='mq'?pc.gr.qg:mode=='mMx'?pc.gr.Mx:pc.gr.My;let a=1e30,b=-1e30;A.forEach(c=>c.forEach(v=>{if(v<a)a=v;if(v>b)b=v}));const k=mode=='mq'?UF('p'):UF('FL')/UF('L');o.push(['MT'+(i+1),mode=='mq'?'q':mode=='mMx'?'Mx':'My',a*k,b*k,mode=='mq'?UL('p'):UL('FL')+'/'+UL('L')])})}
  return o}
 function form(){const p=$('prop');
@@ -1131,7 +1177,7 @@ function run(){res=analyze();const o=$('out');if(res.err){o.innerHTML='<span cla
  if(res.avisos&&res.avisos.length)h+='<div class="er" style="margin-top:6px">'+res.avisos.join('<br>')+'</div>';
  o.innerHTML=h;setM('def')}
 $('t_sel').onclick=()=>setT('sel');$('t_bar').onclick=()=>setT('bar');$('t_wal').onclick=()=>setT('wal');$('t_slb').onclick=()=>setT('slb');$('t_are').onclick=()=>setT('are');$('t_zap').onclick=()=>setT('zap');$('t_pla').onclick=()=>setT('pla');$('b_del').onclick=del;$('b_run').onclick=run;$('b_fit').onclick=()=>{fit();draw()};$('zi').onclick=()=>{zoomAt(cv.clientWidth/2,cv.clientHeight/2,1.25);draw()};$('zo').onclick=()=>{zoomAt(cv.clientWidth/2,cv.clientHeight/2,.8);draw()};$('b_an').onclick=()=>{if(anim){stopAnim();return}if(!res)run();if(!res)return;setM('def');$('b_an').textContent='■ Detener';anim=requestAnimationFrame(tick)};$('b_clr').onclick=()=>load([],[]);
-$('mdsel').innerHTML=[['model','Modelo'],['def','Deformada'],['sw','σ en muros'],['mq','q en la matre'],['mMx','Mx en la matre'],['mMy','My en la matre'],['sMx','Mx en losas'],['sMy','My en losas'],['N','Axial N'],['Vy','Cortante Vy'],['Vz','Cortante Vz'],['T','Torsión T'],['My','Momento My'],['Mz','Momento Mz'],['Sz','Suelo z'],['Sy','Suelo y']].map(([k,l])=>'<option value="'+k+'">'+l+'</option>').join('');
+$('mdsel').innerHTML=[['model','Modelo'],['def','Deformada'],['sw','σ en muros'],['mq','q en la matre'],['mMx','Mx en la matre'],['mMy','My en la matre'],['zq','q en zapatas'],['sMx','Mx en losas'],['sMy','My en losas'],['N','Axial N'],['Vy','Cortante Vy'],['Vz','Cortante Vz'],['T','Torsión T'],['My','Momento My'],['Mz','Momento Mz'],['Sz','Suelo z'],['Sy','Suelo y']].map(([k,l])=>'<option value="'+k+'">'+l+'</option>').join('');
 $('mdsel').onchange=()=>{const k=$('mdsel').value;if(k!='model'&&!res)run();if(res||k=='model')setM(k);else $('mdsel').value=mode};
 $('v_iso').onclick=()=>view(-.6,.45);$('v_xy').onclick=()=>view(0,Math.PI/2,'XY');$('v_xz').onclick=()=>view(0,0,'XZ');$('v_yz').onclick=()=>view(-Math.PI/2,0,'YZ');
 ['pl','lv','gs','df'].forEach(i=>{const e2=$(i);if(e2)e2.onchange=draw});$('vs').onchange=draw;$('cm').onchange=draw;
@@ -1144,6 +1190,7 @@ MENUS.forEach(([d,b])=>{const be=$(b);if(!be)return;be.onclick=ev=>{if(ev&&ev.st
 if(document.addEventListener)document.addEventListener('click',()=>cierraMenus(null));
 if($('b_run2'))$('b_run2').onclick=()=>{cierraMenus(null);run()};
 if($('b_rep2'))$('b_rep2').onclick=()=>{cierraMenus(null);reportePDF()};
+if($('b_rep3'))$('b_rep3').onclick=()=>{cierraMenus(null);reportePDF(true)};
 function verAyuda(t){
  const c=$('hmc');if(!c)return;
  if(t=='acerca')c.innerHTML='<p><b>ZAPEL 3D · Etapa 7</b></p><p>Análisis estructural tridimensional: pórticos espaciales, muros, losas con cargas de área, zapatas aisladas y matres, contornos de tensiones y análisis sísmico según ASCE 7-22 y PRBC 2018 (fuerza lateral equivalente y modal espectral con CQC).</p><p class="m">Basado en ZAPEL77P, del Dr. Bernardo Deschapelles.<br>Actualización y ampliación: Prof. Raymond Rosa Ávila.</p>';
@@ -1160,6 +1207,15 @@ function verAyuda(t){
   '<tr><td><b>Reporte</b></td><td>Botón «Reporte»: memoria en PDF con figuras y tablas.</td></tr></table>';
  if($('hmt'))$('hmt').textContent=(t=='acerca'?'Acerca de ZAPEL 3D':'Atajos y consejos');
  $('hm').style.display='flex'}
+function setDev(m){
+ const de=document.documentElement;if(!de)return;
+ if(de.dataset)de.dataset.dev=m;else if(de.setAttribute)de.setAttribute('data-dev',m);
+ try{localStorage.setItem('zapel-dev',m)}catch(e){}
+ ['auto','pc','tab','mov'].forEach(k=>{const b=$('d_'+k);if(b&&b.classList)b.classList.toggle('on',k===m)});
+ setTimeout(()=>{fit();draw()},60);draw()}
+[['d_auto','auto'],['d_pc','pc'],['d_tab','tab'],['d_mov','mov']].forEach(([id,m])=>{
+ const b=$(id);if(b)b.onclick=()=>{cierraMenus(null);setDev(m)}});
+try{const g=localStorage.getItem('zapel-dev');setDev(g||'auto')}catch(e){setDev('auto')}
 if($('b_help'))$('b_help').onclick=()=>{cierraMenus(null);verAyuda('atajos')};
 if($('b_about'))$('b_about').onclick=()=>{cierraMenus(null);verAyuda('acerca')};
 if($('hmx'))$('hmx').onclick=()=>{$('hm').style.display='none'};
@@ -1323,7 +1379,26 @@ function tablaSismo(){
     h+='</table>'}});
  }
  return h}
-function reportePDF(){
+function esTactil(){
+ try{const d=document.documentElement;
+  const dv=d&&d.dataset?d.dataset.dev:(d&&d.getAttribute?d.getAttribute('data-dev'):'');
+  if(dv==='mov'||dv==='tab')return true;
+  if(dv==='pc')return false;
+  if(matchMedia('(pointer:coarse)').matches)return true;
+  if(innerWidth<820)return true;
+ }catch(e){}
+ return false}
+function descargaReporte(h){
+ try{
+  const blob=new Blob([h],{type:'text/html;charset=utf-8'});
+  const url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download='reporte-zapel-'+new Date().toISOString().slice(0,10)+'.html';
+  if(document.body)document.body.appendChild(a);
+  a.click();
+  setTimeout(()=>{try{URL.revokeObjectURL(url);if(a.remove)a.remove()}catch(e){}},3000);
+  if($('stz'))$('stz').textContent='Reporte descargado: ábrelo y pulsa «Imprimir / Guardar PDF».';
+ }catch(e){if($('stz'))$('stz').textContent='No se pudo generar el archivo del reporte.'}}
+function reportePDF(soloDescarga){
  if(!res){run();if(!res)return}
  let proj='';
  try{proj=(typeof prompt=='function'?(prompt('Nombre del proyecto u obra (opcional):','')||''):'')}catch(e){proj=''}
@@ -1331,14 +1406,15 @@ function reportePDF(){
  sel=null;C.a=-.6;C.p=.45;fit();
  const cap={model:'Modelo tridimensional',def:'Deformada ampliada',sw:'Tensiones \u03c3 en muros',
   mq:'Presión de contacto en la matre',mMx:'Momentos Mx en la matre',mMy:'Momentos My en la matre',
-  sMx:'Momentos Mx en las losas',sMy:'Momentos My en las losas',
+  sMx:'Momentos Mx en las losas',sMy:'Momentos My en las losas',zq:'Presión de contacto en las zapatas',
   N:'Diagrama de fuerza axial N',My:'Diagrama de momento My',Vz:'Diagrama de cortante Vz',Mz:'Diagrama de momento Mz'};
- const orden=['model','def','sw','mq','mMx','mMy','sMx','sMy','N','My','Vz'];
+ const orden=['model','def','sw','mq','mMx','mMy','zq','sMx','sMy','N','My','Vz'];
  const figs=[];
  orden.forEach(md=>{
   if((md=='mq'||md=='mMx'||md=='mMy')&&!PLATEAS.length)return;
   if((md=='sMx'||md=='sMy')&&!LOSAS.length)return;
   if(md=='sw'&&!MUROS.length)return;
+  if(md=='zq'&&!ZAPATAS.length)return;
   if(['N','My','Vz','Mz'].indexOf(md)>=0&&!B.length)return;
   try{mode=md;draw();figs.push('<div class="fig"><img src="'+cv.toDataURL('image/png')+'"><div class="cap">Figura '+(figs.length+1)+'. '+cap[md]+'</div></div>')}catch(e){}
  });
@@ -1365,7 +1441,10 @@ function reportePDF(){
   '.portada .t{font-size:26pt;font-weight:700;color:#1f3864;letter-spacing:.5pt}'+
   '.portada .s{font-size:12pt;color:#2e5c9a;margin-top:1mm}'+
   '.portada .d{font-size:9.5pt;color:#555;margin-top:6mm;line-height:1.7}'+
-  '.pie{margin-top:6mm;border-top:.6pt solid #ccc;padding-top:2mm;color:#777;font-size:7.5pt}';
+  '.pie{margin-top:6mm;border-top:.6pt solid #ccc;padding-top:2mm;color:#777;font-size:7.5pt}'+
+  '.noprint{position:fixed;right:16px;bottom:16px;padding:12px 18px;font:600 15px system-ui,sans-serif;background:#1f3864;color:#fff;border:0;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.3);cursor:pointer}'+
+  '@media print{.noprint{display:none}}'+
+  '@media(max-width:700px){body{font-size:10.5pt}h1{font-size:15pt}table{font-size:9pt}.portada{padding:5mm}}';
  let h='<!doctype html><html lang="es"><head><meta charset="utf-8"><title>ZAPEL 3D · Memoria de cálculo</title><style>'+css+'</style></head><body>';
  h+='<div class="portada"><div class="t">ZAPEL 3D</div><div class="s">Memoria de cálculo estructural</div>'
   +'<div class="d"><b style="all:unset;font-weight:600">Proyecto:</b> '+(proj?proj.replace(/[<>&]/g,''):'Sin título')+'<br>'
@@ -1386,9 +1465,11 @@ function reportePDF(){
  h+='<p>El sismo se calcula con fuerza lateral equivalente y, opcionalmente, con análisis modal espectral y combinación CQC; en ambos casos se aplica la torsión accidental mínima reglamentaria.</p>';
  h+='</div>';
  h+='<div class="pie">Generado por ZAPEL 3D (Etapa 7). Para guardar en PDF use «Guardar como PDF» en el diálogo de impresión.</div>';
+ h+='<button class="noprint" onclick="window.print()">Imprimir / Guardar PDF</button>';
  h+='</body></html>';
+ if(soloDescarga||esTactil()){descargaReporte(h);return}
  const w=window.open('','_blank');
- if(!w){alert('El navegador bloqueó la ventana del reporte. Permita las ventanas emergentes para este archivo.');return}
+ if(!w){descargaReporte(h);return}
  w.document.open();w.document.write(h);w.document.close();
  let k=0,tid=0;
  tid=setInterval(()=>{k++;
