@@ -29,11 +29,7 @@ table{border-collapse:collapse;width:100%}td,th{padding:1px 3px;text-align:right
  #pn{width:auto;max-height:38vh;border-left:0;border-top:1px solid var(--bd);font-size:13px}
  #brand{display:none}
  #hint{display:none}
- input,select,button,textarea{font-size:16px}
- .dp button{padding:12px 11px;font-size:16px}
- .dp label.ckm{padding:12px}
- .dp{position:fixed;left:6px;right:6px;top:auto;bottom:6px;min-width:0;max-height:62vh;overflow:auto;padding-top:6px}
- .mn:hover .dp{display:none}
+ input,select,textarea{font-size:16px}
  #tb{gap:4px;padding:5px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch}
  #tb>*{flex:0 0 auto}
  #tb2{gap:10px;padding:6px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch}
@@ -46,11 +42,8 @@ table{border-collapse:collapse;width:100%}td,th{padding:1px 3px;text-align:right
 }
 html{-webkit-text-size-adjust:100%}
 button,select,input{touch-action:manipulation}
-.dp .mt{font-size:11px;color:var(--mut);padding:6px 9px 2px;text-transform:uppercase;letter-spacing:.4px}
-@media(hover:none){.mn:hover .dp{display:none}}
 :root[data-dev=tab] #pn{width:252px}
 :root[data-dev=tab] #tb{gap:3px}
-:root[data-dev=tab] .dp button{padding:9px 9px}
 :root[data-dev=mov] #mn{flex-direction:column}
 :root[data-dev=mov] #pn{width:auto;max-height:44vh;border-left:0;border-top:1px solid var(--bd)}
  :root[data-dev=mov] #tb{gap:2px;padding:4px 5px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch}
@@ -61,11 +54,6 @@ button,select,input{touch-action:manipulation}
 :root[data-dev=mov] .sp{display:none}
 :root[data-dev=mov] #pn{max-height:34vh}
 :root[data-dev=mov] #brand{display:none}
-:root[data-dev=mov] .mn>button.mb{padding:7px 9px;font-size:13px}
-:root[data-dev=mov] .mn:hover .dp{display:none}
-:root[data-dev=mov] .dp{position:fixed;left:6px;right:6px;top:auto;bottom:6px;min-width:0;max-height:64vh;overflow:auto;z-index:200}
-:root[data-dev=mov] .dp button{padding:12px 12px;font-size:14px}
-:root[data-dev=mov] .dp label.ckm{padding:12px}
 :root[data-dev=mov] #tb2{gap:10px;padding:6px;font-size:12px}
 :root[data-dev=mov] #tb2 input{width:70px}
 :root[data-dev=mov] #mdsel{min-width:120px}
@@ -75,18 +63,6 @@ button,select,input{touch-action:manipulation}
 :root[data-dev=mov] #hmb{max-height:90vh;width:100%;margin:8px;box-sizing:border-box}
 :root[data-dev=mov] .fig img{width:100%}
 #brand{font-weight:700;color:var(--ac);letter-spacing:.3px;margin-right:6px}
-.mn{position:relative}
-.mn>button.mb{border-color:transparent;background:transparent;padding:5px 10px;font-weight:500}
-.mn>button.mb:hover,.mn.open>button.mb{background:var(--g);border-color:var(--bd)}
-.dp{position:absolute;top:100%;left:0;min-width:270px;padding-top:7px;z-index:200;background:var(--pn);border:1px solid var(--bd);border-radius:9px;box-shadow:0 10px 30px rgba(0,0,0,.28);padding:5px;display:none;z-index:60}
-.mn.open .dp{display:block}
-@media(hover:hover){.mn:hover .dp{display:block}}
-.dp button{display:block;width:100%;text-align:left;border-color:transparent;background:transparent;padding:7px 9px;border-radius:6px}
-.dp button:hover{background:var(--g)}
-.dp button.on{background:var(--ac);color:#fff}
-.dp .sep{height:1px;background:var(--bd);margin:4px 3px}
-.dp label.ckm{display:flex;gap:8px;align-items:center;padding:7px 9px;border-radius:6px;cursor:pointer}
-.dp label.ckm:hover{background:var(--g)}
 .mdl{display:inline-flex;gap:6px;align-items:center;color:var(--mut)}
 #mdsel{min-width:150px}
 #hm{position:fixed;inset:0;background:rgba(15,23,42,.35);z-index:120;display:none;align-items:center;justify-content:center}
@@ -94,89 +70,39 @@ button,select,input{touch-action:manipulation}
 #hmb b{font-size:15px}
 #hmc{margin:10px 0;font-size:12px;line-height:1.6}
 #hmc table{width:100%}#hmc td{padding:2px 4px}
-/* ---- Menús en celular y tableta: este bloque va AL FINAL para ganar la cascada sobre las reglas base de .dp ---- */
-@supports(height:100dvh){html,body{height:100dvh}}
-@media(max-width:760px),(hover:none) and (pointer:coarse) and (max-width:1100px){
- .dp{position:fixed;left:6px;right:6px;top:auto;bottom:calc(6px + env(safe-area-inset-bottom,0px));min-width:0;max-height:62vh;overflow:auto;-webkit-overflow-scrolling:touch;z-index:300;box-shadow:0 -8px 32px rgba(0,0,0,.4)}
- .mn:hover .dp{display:none}
- .mn.open .dp{display:block}
- .dp button{padding:12px 11px;font-size:16px}
- .dp label.ckm{padding:12px}
- .dp .mt{padding:8px 9px 2px}
- .mn>button.mb{padding:8px 12px}
-}
+.grup{display:inline-flex;align-items:center;gap:4px}
+.lb{font-size:10.5px;color:var(--mut);text-transform:uppercase;letter-spacing:.3px;margin-right:2px;font-weight:600}
+#tb2 label.ck{display:inline-flex;gap:3px;align-items:center;margin:0 2px;color:var(--mut)}
+#tb2 input{width:62px}
+@media(max-width:760px){.lb{display:none}#tb,#tb2{gap:6px}}
 </style></head><body>
 <div id="tb">
 <span id="brand">ZAPEL 3D</span>
-<div class="mn" id="m_arch"><button type="button" id="m_arch_b" class="mb">Archivo</button><div class="dp">
-<button type="button" id="b_clr">Nuevo / limpiar modelo</button>
-<button type="button" id="b_open">Abrir…</button>
-<button type="button" id="b_save">Guardar…</button>
-<div class="sep"></div>
-<button type="button" id="b_ex4">Ejemplo: edificio de 2 niveles</button>
-<button type="button" id="b_ex">Ejemplo: pórtico espacial</button>
-<button type="button" id="b_ex2">Ejemplo: viga sobre suelo elástico</button>
-<button type="button" id="b_ex3">Ejemplo: viga de acero</button>
-<div class="sep"></div>
-<button type="button" id="b_rep2">Reporte de cálculo (imprimir / PDF)</button>
-<button type="button" id="b_rep3">Reporte: descargar archivo HTML</button>
-</div></div>
-<div class="mn" id="m_dib"><button type="button" id="m_dib_b" class="mb">Dibujar</button><div class="dp">
-<button type="button" id="t_sel" class="on">Seleccionar</button>
-<button type="button" id="t_bar">Barra</button>
-<button type="button" id="t_wal">Muro</button>
-<button type="button" id="t_slb">Losa</button>
-<button type="button" id="t_are">Carga de área</button>
-<button type="button" id="t_zap">Zapata</button>
-<button type="button" id="t_pla">Matre</button>
-<div class="sep"></div>
-<button type="button" id="b_del">Eliminar selección</button>
-</div></div>
-<div class="mn" id="m_vis"><button type="button" id="m_vis_b" class="mb">Vista</button><div class="dp">
-<button type="button" id="v_iso">Isométrica</button>
-<button type="button" id="v_xy">Planta (XY)</button>
-<button type="button" id="v_xz">Frente (XZ)</button>
-<button type="button" id="v_yz">Lateral (YZ)</button>
-<div class="sep"></div>
-<button type="button" id="b_fit">Encuadrar modelo</button>
-<button type="button" id="zi">Acercar ＋</button>
-<button type="button" id="zo">Alejar －</button>
-<div class="sep"></div>
-<label class="ckm"><input type="checkbox" id="vs" checked> Ver secciones</label>
-<label class="ckm"><input type="checkbox" id="cm" checked> Cotas</label>
-<div class="sep"></div>
-<div class="mt">Modo de pantalla</div>
-<button type="button" id="d_auto">Automático (según el equipo)</button>
-<button type="button" id="d_pc">Computadora</button>
-<button type="button" id="d_tab">Tableta</button>
-<button type="button" id="d_mov">Celular</button>
-</div></div>
-<div class="mn" id="m_cal"><button type="button" id="m_cal_b" class="mb">Cálculo</button><div class="dp">
-<button type="button" id="b_run2">▶ Calcular (caso gravitatorio)</button>
-<button type="button" id="b_sismo">Sismo ASCE 7-22 / PRBC 2018…</button>
-<div class="sep"></div>
-<button type="button" id="b_an">▶ Animar deformada</button>
-</div></div>
-<div class="mn" id="m_ayu"><button type="button" id="m_ayu_b" class="mb">Ayuda</button><div class="dp">
-<button type="button" id="b_help">Atajos y consejos…</button>
-<button type="button" id="b_about">Acerca de ZAPEL 3D</button>
-</div></div>
+<span class="grup"><span class="lb">Dibujar</span><button type="button" id="t_sel" class="on">Seleccionar</button><button type="button" id="t_bar">Barra</button><button type="button" id="t_wal">Muro</button><button type="button" id="t_slb">Losa</button><button type="button" id="t_are">Carga de área</button><button type="button" id="t_zap">Zapata</button><button type="button" id="t_pla">Matre</button><button type="button" id="b_del">Eliminar</button></span>
 <span class="sp"></span>
-<label class="mdl">Resultados <select id="mdsel"></select></label>
+<span class="grup"><span class="lb">Archivo</span><button type="button" id="b_clr">Nuevo</button><button type="button" id="b_open">Abrir</button><button type="button" id="b_save">Guardar</button></span>
 <span class="sp"></span>
+<span class="grup"><span class="lb">Ejemplos</span><button type="button" id="b_ex4">Edificio</button><button type="button" id="b_ex">Pórtico</button><button type="button" id="b_ex2">Viga suelo</button><button type="button" id="b_ex3">Viga acero</button></span>
+<span class="sp"></span>
+<span class="grup"><span class="lb">Resultados</span><select id="mdsel"></select></span>
 <button type="button" class="go" id="b_run">▶ Calcular</button>
 <button type="button" id="b_rep">📄 Reporte</button>
+<button type="button" id="b_rep3" title="Descargar el reporte como archivo HTML">⬇</button>
+<button type="button" id="b_sismo">Sismo…</button>
+<button type="button" id="b_help" title="Ayuda y atajos">?</button>
 </div>
 <div id="tb2">
-<span class="g"><b>Plano</b> <select id="pl"><option>XY</option><option>XZ</option><option>YZ</option></select></span>
-<span class="g"><b>Unidades</b> <select id="un"><option value="IM" selected>kip · ft (Imperial)</option><option value="SI">kN · m (SI)</option></select></span>
-<span class="g">Nivel <input id="lv" type="number" value="0" step="0.5" style="width:62px"> <span class="gu" data-u="L">m</span></span>
-<span class="g">Malla <input id="gs" type="number" value="0.5" step="0.1" min="0.05" style="width:55px"> <span class="gu" data-u="L">m</span></span>
+<span class="grup"><span class="lb">Vista</span><button type="button" id="v_iso">Iso</button><button type="button" id="v_xy">Planta</button><button type="button" id="v_xz">Frente</button><button type="button" id="v_yz">Lateral</button><button type="button" id="b_fit">Encuadrar</button><button type="button" id="zi">＋</button><button type="button" id="zo">－</button><label class="ck"><input type="checkbox" id="vs" checked> Secciones</label><label class="ck"><input type="checkbox" id="cm" checked> Cotas</label><button type="button" id="b_an">▶ Animar</button><span class="grup">×<input id="df" type="number" value="1" step="0.5" min="0.1" style="width:52px"></span></span>
 <span class="sp"></span>
-<span class="g"><b>Muro</b> t <input id="wt" type="number" step="any" min="0.01"> <span data-u="s">mm</span> · H <input id="wh" type="number" step="any" min="0.1"> <span data-u="L">m</span></span>
-<span class="g"><b>Losa</b> t <input id="st" type="number" step="any" min="0.01"> <span data-u="s">mm</span></span>
-<span class="g"><b>Carga de área</b> q <input id="aq" type="number" step="any"> <span data-u="p">kN/m²</span></span>
-<span class="g">× ampliar <input id="df" type="number" value="1" step="0.5" min="0.1" style="width:52px"></span>
+<span class="grup"><b>Plano</b><select id="pl"><option>XY</option><option>XZ</option><option>YZ</option></select></span>
+<span class="grup"><b>Unidades</b><select id="un"><option value="IM" selected>kip · ft (Imperial)</option><option value="SI">kN · m (SI)</option></select></span>
+<span class="grup"><b>Pantalla</b><select id="devsel"><option value="auto">Automático</option><option value="pc">Computadora</option><option value="tab">Tableta</option><option value="mov">Celular</option></select></span>
+<span class="grup">Nivel <input id="lv" type="number" value="0" step="0.5" style="width:62px"> <span class="gu" data-u="L">m</span></span>
+<span class="grup">Malla <input id="gs" type="number" value="0.5" step="0.1" min="0.05" style="width:55px"> <span class="gu" data-u="L">m</span></span>
+<span class="sp"></span>
+<span class="grup"><b>Muro</b> t <input id="wt" type="number" step="any" min="0.01"> <span data-u="s">mm</span> · H <input id="wh" type="number" step="any" min="0.1"> <span data-u="L">m</span></span>
+<span class="grup"><b>Losa</b> t <input id="st" type="number" step="any" min="0.01"> <span data-u="s">mm</span></span>
+<span class="grup"><b>Carga</b> q <input id="aq" type="number" step="any"> <span data-u="p">kN/m²</span></span>
 <span id="hint"></span>
 </div>
 <input type="file" id="fo" accept=".json,application/json" style="display:none">
@@ -1220,21 +1146,8 @@ $('mdsel').innerHTML=[['model','Modelo'],['def','Deformada'],['sw','σ en muros'
 $('mdsel').onchange=()=>{const k=$('mdsel').value;if(k!='model'&&!res)run();if(res||k=='model')setM(k);else $('mdsel').value=mode};
 $('v_iso').onclick=()=>view(-.6,.45);$('v_xy').onclick=()=>view(0,Math.PI/2,'XY');$('v_xz').onclick=()=>view(0,0,'XZ');$('v_yz').onclick=()=>view(-Math.PI/2,0,'YZ');
 ['pl','lv','gs','df'].forEach(i=>{const e2=$(i);if(e2)e2.onchange=draw});$('vs').onchange=draw;$('cm').onchange=draw;
-/* --- menús desplegables --- */
-const MENUS=[['m_arch','m_arch_b'],['m_dib','m_dib_b'],['m_vis','m_vis_b'],['m_cal','m_cal_b'],['m_ayu','m_ayu_b']];
-function cierraMenus(salvo){MENUS.forEach(([d])=>{if(d!==salvo){const e=$(d);if(e&&e.classList)e.classList.remove('open')}})}
-const PUNTERO=(()=>{try{return matchMedia('(hover:hover)').matches&&matchMedia('(pointer:fine)').matches}catch(e){return true}})();
-function esMov(){try{const d=document.documentElement;return !!(d&&d.dataset&&d.dataset.dev==='mov')}catch(e){return false}}
-MENUS.forEach(([d,b])=>{const be=$(b);if(!be)return;
- be.onclick=ev=>{if(ev&&ev.stopPropagation)ev.stopPropagation();
-  const e=$(d),ab=!!(e&&e.classList&&e.classList.contains('open'));cierraMenus(d);
-  if(e&&e.classList){if(ab)e.classList.remove('open');else e.classList.add('open')}};
- if(be.addEventListener)be.addEventListener('mouseleave',()=>{const e=$(d);const ancho=(typeof innerWidth!=='undefined'?innerWidth:9999);
-  if(e&&e.classList&&PUNTERO&&!esMov()&&ancho>760)e.classList.remove('open')});});
-if(document.addEventListener)document.addEventListener('click',()=>cierraMenus(null));
-if($('b_run2'))$('b_run2').onclick=()=>{cierraMenus(null);run()};
-if($('b_rep2'))$('b_rep2').onclick=()=>{cierraMenus(null);reportePDF()};
-if($('b_rep3'))$('b_rep3').onclick=()=>{cierraMenus(null);reportePDF(true)};
+/* --- pantalla, ayuda y utilidades --- */
+function cierraMenus(){}
 function verAyuda(t){
  const c=$('hmc');if(!c)return;
  if(t=='acerca')c.innerHTML='<p><b>ZAPEL 3D · Etapa 7</b></p><p>Análisis estructural tridimensional: pórticos espaciales, muros, losas con cargas de área, zapatas aisladas y matres, contornos de tensiones y análisis sísmico según ASCE 7-22 y PRBC 2018 (fuerza lateral equivalente y modal espectral con CQC).</p><p class="m">Basado en ZAPEL77P, del Dr. Bernardo Deschapelles.<br>Actualización y ampliación: Prof. Raymond Rosa Ávila.</p>';
@@ -1243,27 +1156,28 @@ function verAyuda(t){
   '<tr><td><b>Muro</b></td><td>Dos clics en planta; se levanta desde el nivel actual.</td></tr>'+
   '<tr><td><b>Losa / carga</b></td><td>Polígono en planta; se cierra con clic derecho, Esc o doble clic.</td></tr>'+
   '<tr><td><b>Zapata</b></td><td>Clic sobre un nudo con apoyo.</td></tr>'+
-  '<tr><td><b>Girar</b></td><td>Arrastrar con el botón izquierdo (o derecho) en Seleccionar.</td></tr>'+
+  '<tr><td><b>Girar</b></td><td>Arrastrar con el botón izquierdo en Seleccionar (o botón derecho).</td></tr>'+
   '<tr><td><b>Desplazar</b></td><td>Mayús + arrastrar.</td></tr>'+
-  '<tr><td><b>Zoom</b></td><td>Rueda del ratón sobre el punto de interés.</td></tr>'+
-  '<tr><td><b>Eliminar</b></td><td>Supr o Retroceso con el objeto seleccionado.</td></tr>'+
-  '<tr><td><b>Resultados</b></td><td>Menú «Resultados» de la barra: modelo, deformada, contornos y diagramas.</td></tr>'+
-  '<tr><td><b>Reporte</b></td><td>Botón «Reporte»: memoria en PDF con figuras y tablas.</td></tr></table>';
+  '<tr><td><b>Zoom</b></td><td>Rueda del ratón, o pellizcar en pantalla táctil.</td></tr>'+
+  '<tr><td><b>Eliminar</b></td><td>Supr con el objeto seleccionado.</td></tr>'+
+  '<tr><td><b>Resultados</b></td><td>Lista «Resultados» de la barra: modelo, deformada, contornos y diagramas.</td></tr>'+
+  '<tr><td><b>Reporte</b></td><td>«📄 Reporte» abre la memoria; «⬇» la descarga como archivo.</td></tr>'+
+  '<tr><td><b>Pantalla</b></td><td>Automático, Computadora, Tableta o Celular.</td></tr></table>';
  if($('hmt'))$('hmt').textContent=(t=='acerca'?'Acerca de ZAPEL 3D':'Atajos y consejos');
- $('hm').style.display='flex'}
+ if($('hm'))$('hm').style.display='flex'}
+function esMov(){try{const d=document.documentElement;return !!(d&&d.dataset&&d.dataset.dev==='mov')}catch(e){return false}}
 function setDev(m){
  const de=document.documentElement;if(!de)return;
  if(de.dataset)de.dataset.dev=m;else if(de.setAttribute)de.setAttribute('data-dev',m);
  try{localStorage.setItem('zapel-dev',m)}catch(e){}
- ['auto','pc','tab','mov'].forEach(k=>{const b=$('d_'+k);if(b&&b.classList)b.classList.toggle('on',k===m)});
+ const q=$('devsel');if(q&&q.value!==m)q.value=m;
  setTimeout(()=>{fit();draw()},60);draw()}
-[['d_auto','auto'],['d_pc','pc'],['d_tab','tab'],['d_mov','mov']].forEach(([id,m])=>{
- const b=$(id);if(b)b.onclick=()=>{cierraMenus(null);setDev(m)}});
 try{const g=localStorage.getItem('zapel-dev');setDev(g||'auto')}catch(e){setDev('auto')}
-if($('b_help'))$('b_help').onclick=()=>{cierraMenus(null);verAyuda('atajos')};
-if($('b_about'))$('b_about').onclick=()=>{cierraMenus(null);verAyuda('acerca')};
+if($('devsel'))$('devsel').onchange=()=>setDev($('devsel').value);
+if($('b_help'))$('b_help').onclick=()=>verAyuda('atajos');
+if($('b_rep3'))$('b_rep3').onclick=()=>reportePDF(true);
 if($('hmx'))$('hmx').onclick=()=>{$('hm').style.display='none'};
-if($('hm'))$('hm').onclick=ev=>{if(ev&&ev.target===$('hm'))$('hm').style.display='none'};
+
 function informeSismo(r){
  const f=(v,d=3)=>(+v).toPrecision(d),u=UF('L'),Fq=UF('F');
  let h='<b>Sismo '+(r.cod=='prbc18'?'PRBC 2018 (ASCE 7-16)':'ASCE 7-22')+' · fuerza lateral equivalente</b>';
