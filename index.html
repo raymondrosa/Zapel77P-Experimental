@@ -24,7 +24,28 @@ table{border-collapse:collapse;width:100%}td,th{padding:1px 3px;text-align:right
 #hint{margin-left:auto}
 #smw label{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:5px 0}
 #smw input,#smw select{padding:2px 6px}
-@media(max-width:760px){#mn{flex-direction:column}#pn{width:auto;max-height:40%;border-left:0;border-top:1px solid var(--bd)}}
+@media(max-width:760px){
+ #mn{flex-direction:column}
+ #pn{width:auto;max-height:38vh;border-left:0;border-top:1px solid var(--bd);font-size:13px}
+ #brand{display:none}
+ #hint{display:none}
+ input,select,button,textarea{font-size:16px}
+ .dp button{padding:12px 11px;font-size:16px}
+ .dp label.ckm{padding:12px}
+ .dp{position:fixed;left:6px;right:6px;top:auto;bottom:6px;min-width:0;max-height:62vh;overflow:auto;padding-top:6px}
+ .mn:hover .dp{display:none}
+ #tb{gap:4px;padding:5px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch}
+ #tb>*{flex:0 0 auto}
+ #tb2{gap:10px;padding:6px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch}
+ #tb2>*{flex:0 0 auto}
+ #tb2 input{width:74px}
+ #mdsel{min-width:118px}
+ #b_run{order:-3}#b_rep{order:-2}label.mdl{order:-1}.sp{display:none}
+ #pn{max-height:34vh}
+ #hmb{width:100%;margin:8px;max-height:90vh}
+}
+html{-webkit-text-size-adjust:100%}
+button,select,input{touch-action:manipulation}
 .dp .mt{font-size:11px;color:var(--mut);padding:6px 9px 2px;text-transform:uppercase;letter-spacing:.4px}
 @media(hover:none){.mn:hover .dp{display:none}}
 :root[data-dev=tab] #pn{width:252px}
@@ -32,7 +53,13 @@ table{border-collapse:collapse;width:100%}td,th{padding:1px 3px;text-align:right
 :root[data-dev=tab] .dp button{padding:9px 9px}
 :root[data-dev=mov] #mn{flex-direction:column}
 :root[data-dev=mov] #pn{width:auto;max-height:44vh;border-left:0;border-top:1px solid var(--bd)}
-:root[data-dev=mov] #tb{gap:2px;padding:4px 5px}
+ :root[data-dev=mov] #tb{gap:2px;padding:4px 5px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch}
+:root[data-dev=mov] #tb>*{flex:0 0 auto}
+:root[data-dev=mov] #tb2{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch}
+:root[data-dev=mov] #tb2>*{flex:0 0 auto}
+:root[data-dev=mov] #b_run{order:-3}:root[data-dev=mov] #b_rep{order:-2}:root[data-dev=mov] label.mdl{order:-1}
+:root[data-dev=mov] .sp{display:none}
+:root[data-dev=mov] #pn{max-height:34vh}
 :root[data-dev=mov] #brand{display:none}
 :root[data-dev=mov] .mn>button.mb{padding:7px 9px;font-size:13px}
 :root[data-dev=mov] .mn:hover .dp{display:none}
@@ -51,8 +78,9 @@ table{border-collapse:collapse;width:100%}td,th{padding:1px 3px;text-align:right
 .mn{position:relative}
 .mn>button.mb{border-color:transparent;background:transparent;padding:5px 10px;font-weight:500}
 .mn>button.mb:hover,.mn.open>button.mb{background:var(--g);border-color:var(--bd)}
-.dp{position:absolute;top:calc(100% + 4px);left:0;min-width:270px;z-index:200;background:var(--pn);border:1px solid var(--bd);border-radius:9px;box-shadow:0 10px 30px rgba(0,0,0,.28);padding:5px;display:none;z-index:60}
-.mn.open .dp,.mn:hover .dp{display:block}
+.dp{position:absolute;top:100%;left:0;min-width:270px;padding-top:7px;z-index:200;background:var(--pn);border:1px solid var(--bd);border-radius:9px;box-shadow:0 10px 30px rgba(0,0,0,.28);padding:5px;display:none;z-index:60}
+.mn.open .dp{display:block}
+@media(hover:hover){.mn:hover .dp{display:block}}
 .dp button{display:block;width:100%;text-align:left;border-color:transparent;background:transparent;padding:7px 9px;border-radius:6px}
 .dp button:hover{background:var(--g)}
 .dp button.on{background:var(--ac);color:#fff}
@@ -1184,9 +1212,14 @@ $('v_iso').onclick=()=>view(-.6,.45);$('v_xy').onclick=()=>view(0,Math.PI/2,'XY'
 /* --- menús desplegables --- */
 const MENUS=[['m_arch','m_arch_b'],['m_dib','m_dib_b'],['m_vis','m_vis_b'],['m_cal','m_cal_b'],['m_ayu','m_ayu_b']];
 function cierraMenus(salvo){MENUS.forEach(([d])=>{if(d!==salvo){const e=$(d);if(e&&e.classList)e.classList.remove('open')}})}
-MENUS.forEach(([d,b])=>{const be=$(b);if(!be)return;be.onclick=ev=>{if(ev&&ev.stopPropagation)ev.stopPropagation();
- const e=$(d),ab=!!(e&&e.classList&&e.classList.contains('open'));cierraMenus(d);
- if(e&&e.classList){if(ab)e.classList.remove('open');else e.classList.add('open')}}});
+const PUNTERO=(()=>{try{return matchMedia('(hover:hover)').matches&&matchMedia('(pointer:fine)').matches}catch(e){return true}})();
+function esMov(){try{const d=document.documentElement;return !!(d&&d.dataset&&d.dataset.dev==='mov')}catch(e){return false}}
+MENUS.forEach(([d,b])=>{const be=$(b);if(!be)return;
+ be.onclick=ev=>{if(ev&&ev.stopPropagation)ev.stopPropagation();
+  const e=$(d),ab=!!(e&&e.classList&&e.classList.contains('open'));cierraMenus(d);
+  if(e&&e.classList){if(ab)e.classList.remove('open');else e.classList.add('open')}};
+ if(be.addEventListener)be.addEventListener('mouseleave',()=>{const e=$(d);const ancho=(typeof innerWidth!=='undefined'?innerWidth:9999);
+  if(e&&e.classList&&PUNTERO&&!esMov()&&ancho>760)e.classList.remove('open')});});
 if(document.addEventListener)document.addEventListener('click',()=>cierraMenus(null));
 if($('b_run2'))$('b_run2').onclick=()=>{cierraMenus(null);run()};
 if($('b_rep2'))$('b_rep2').onclick=()=>{cierraMenus(null);reportePDF()};
@@ -1444,8 +1477,10 @@ function reportePDF(soloDescarga){
   '.pie{margin-top:6mm;border-top:.6pt solid #ccc;padding-top:2mm;color:#777;font-size:7.5pt}'+
   '.noprint{position:fixed;right:16px;bottom:16px;padding:12px 18px;font:600 15px system-ui,sans-serif;background:#1f3864;color:#fff;border:0;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.3);cursor:pointer}'+
   '@media print{.noprint{display:none}}'+
-  '@media(max-width:700px){body{font-size:10.5pt}h1{font-size:15pt}table{font-size:9pt}.portada{padding:5mm}}';
- let h='<!doctype html><html lang="es"><head><meta charset="utf-8"><title>ZAPEL 3D · Memoria de cálculo</title><style>'+css+'</style></head><body>';
+  '@media(max-width:700px){body{font-size:11pt;padding:0 2mm}h1{font-size:15pt}table{font-size:8.5pt;table-layout:fixed;word-wrap:break-word}th,td{padding:.6mm .8mm}.portada{padding:5mm}.fig img{width:100%}}';
+ let h='<!doctype html><html lang="es"><head><meta charset="utf-8">'
+  +'<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">'
+  +'<title>ZAPEL 3D · Memoria de cálculo</title><style>'+css+'</style></head><body>';
  h+='<div class="portada"><div class="t">ZAPEL 3D</div><div class="s">Memoria de cálculo estructural</div>'
   +'<div class="d"><b style="all:unset;font-weight:600">Proyecto:</b> '+(proj?proj.replace(/[<>&]/g,''):'Sin título')+'<br>'
   +'<b style="all:unset;font-weight:600">Fecha:</b> '+hoy+'<br>'
