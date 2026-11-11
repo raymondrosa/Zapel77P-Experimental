@@ -1846,7 +1846,7 @@ function fusionarNodos(tol=1e-5){
   let tgt=-1;
   for(const k of keep){const m=N[k];if(Math.hypot(n.x-m.x,n.y-m.y,n.z-m.z)<tol){tgt=k;break}}
   if(tgt<0){keep.push(i);map.set(i,i)}
-  else{const t=N[tgt];for(let k=0;k<6;k++){t.r[k]=Math.max(t.r[k],n.r[k]);t.f[k]+=n.f[k]}map.set(i,tgt)}
+  else{const t=N[tgt];for(let k=0;k<6;k++)t.f[k]+=n.f[k];map.set(i,tgt)}
  });
  if(keep.length===N.length)return false;
  const idx=new Map(),N2=[];keep.forEach(old=>{idx.set(old,N2.length);N2.push(N[old])});
@@ -2303,7 +2303,7 @@ function verAyuda(t){
   '<tr><td><b>Guía rápida</b></td><td>El botón <b>Guía</b> abre una guía de 8 pasos con los atajos básicos, en español o inglés.</td></tr>'+
   '<tr><td><b>Guía / Texto</b></td><td>La guía marca ejes o líneas de referencia y, mientras la dibujas, muestra la medida de cada tramo y el total acumulado. Al acercarte a una barra, muro, borde de losa, cota o guía aparece el pinzamiento perpendicular <b>⊥</b> (el pie de la perpendicular desde el último punto). El texto rotula la planta (por ejemplo «P1», «Muro cortina»).</td></tr>'+
   '<tr><td><b>Selección múltiple</b></td><td>Ctrl+clic añade o quita elementos; arrastra en vacío de izquierda a derecha para ventana y de derecha a izquierda para cruce. Alt+clic dentro de un grupo selecciona un solo elemento.</td></tr>'+
-  '<tr><td><b>Copiar y agrupar</b></td><td><b>Copiar / duplicar</b> crea una copia desplazada; <b>Ctrl+D</b> duplica. <b>Ctrl+G</b> agrupa y <b>Ctrl+Mayús+G</b> desagrupa. Los grupos se guardan con el modelo. Al mover o pegar una copia sobre nudos existentes, los nudos coincidentes se fusionan y los apoyos se combinan (el más restrictivo).</td></tr>'+
+  '<tr><td><b>Copiar y agrupar</b></td><td><b>Copiar / duplicar</b> crea una copia desplazada; <b>Ctrl+D</b> duplica. <b>Ctrl+G</b> agrupa y <b>Ctrl+Mayús+G</b> desagrupa. Los grupos se guardan con el modelo. Al mover o pegar una copia sobre nudos existentes, los nudos coincidentes se fusionan y se conserva el apoyo del nudo original; el apoyo de la copia se descarta en ese nudo de unión para que el desplazamiento sea continuo.</td></tr>'+
   '<tr><td><b>Mover con snap</b></td><td>Selecciona, pulsa <b>Mover</b>, haz clic en el punto base (se engancha a esquinas/nudos con FIN) y luego en el destino. Esc cancela.</td></tr>'+
   '<tr><td><b>Viento</b></td><td>En «Viento…» se aplica el procedimiento direccional de ASCE 7-22 o PRBC 2018 (ASCE 7-16) para edificio cerrado: Kz, qz, presiones de barlovento/sotavento, succión de techo, cuatro casos ±X/±Y, cortante basal, vuelco y derivas H/400. La velocidad V es editable; verifica el mapa oficial del sitio y la categoría de riesgo. «Huracán María 2017» usa 155 mph de viento sostenido reportado como escenario de referencia, no como velocidad básica de 3 s. Después del análisis, el botón <b>Viento</b> de Resultados alterna entre la envolvente de viento y la gravedad, con check ✓.</td></tr>'+
   '<tr><td><b>Sismo de escenario</b></td><td>En «Sismo…» elige «Espectro de evento sísmico». La lista incluye espectros 5% de USGS ShakeMap (Venezuela 2026, Turquía 2023, Noto 2024, Kaikoura 2016, Tohoku 2011, Maule 2010, Wenchuan 2008) en el punto de mayor PGA. Puedes escalar a un PGA objetivo o importar tu propio espectro (CSV/JSON: T, Sa en g). Es un escenario modelado, no un registro instrumental, y no ajusta por Vs30.</td></tr>'+
