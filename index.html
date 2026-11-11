@@ -324,6 +324,7 @@ function prism(r,a,z,col){const s=sp(r),ax=axes(r);if(ax.L<1e-9)return;const at=
 const PLS={XY:[0,1,2],XZ:[0,2,1],YZ:[1,2,0]},RL=['Ux','Uy','Uz','Rx','Ry','Rz'],FL=['Fx','Fy','Fz','Mx','My','Mz'];
 const D={ty:'rect',b:.3,h:.5,bf:.15,hf:.12,bw:.25,Dm:.4,d:.3,tf:.01,tw:.007,tt:.01,pts:[[0,0],[.3,0],[.3,.5],[0,.5]],mat:'H',fc:28,E:25,ang:0,wa:0,wb:0,xa:0,xb:0,ya:0,yb:0,pza:0,pzb:0,pya:0,pyb:0,kz:0,ky:0,div:4,a1:0,a2:0};
 let cu='IM';const UN={SI:{L:['m',1],F:['kN',1],FL:['kN·m',1],q:['kN/m',1],E:['GPa',1],k:['kN/m³',1],d:['mm',1000],s:['mm',1000],fc:['MPa',1],A:['cm²',1e4],I:['cm⁴',1e8],p:['kN/m²',1],gw:['kN/m³',1],ar:['m²',1]},IM:{L:['ft',3.28084],F:['kip',.224809],FL:['kip·ft',.737562],q:['kip/ft',.068522],E:['ksi',145.038],k:['kip/ft³',.006366],d:['in',39.3701],s:['in',39.3701],fc:['ksi',.145038],A:['in²',1550.003],I:['in⁴',2402510],p:['ksf',.0208854],gw:['kip/ft³',.00636588],ar:['ft²',10.7639]}},UF=k=>k?UN[cu][k][1]:1,UL=k=>UN[cu][k][0],fmtv=v=>+v.toPrecision(6),KM={N:'F',Vy:'F',Vz:'F',T:'FL',My:'FL',Mz:'FL',Sy:'q',Sz:'q'};
+let FUS_DUP=0;
 let N=[],B=[],MUROS=[],LOSAS=[],CARGAS=[],ZAPATAS=[],PLATEAS=[],ANOT=[],SEL=[],GRUPOS=[],rubber=null,moveBase=null,sismoRes=null,MODAL=null,vientoRes=null,resV=null,vieOn=false,tool='sel',sel=null,res=null,resG=null,resS=null,sisOn=false,mode='model',chain=null,poly=null,drag=null,ms=null,C={a:-.6,p:.45,S:40,ox:300,oy:300},dpr=devicePixelRatio||1;
 /* estado de dibujo: muro poligonal, cotas y guías */
 let WGRP=0,wchain=null,widx=[],dimA=null,aline=null,ortho=true,polar=0,shiftDown=false,cdiag=false,SNAP=null;
@@ -1803,7 +1804,8 @@ function translateSelection(dx,dy,dz){
  const fused=fusionarNodos();
  res=null;$('out').innerHTML='';form();draw();
  if(fused===1)$('hint').textContent='Conexión: 1 nudo fusionado. La copia comparte un solo nudo; el resto trabaja como voladizo. Para que toda la copia siga a la original, conecta más nudos coincidentes.';
- else if(fused>1)$('hint').textContent='Conexión: '+fused+' nudos fusionados.'}
+ else if(fused>1)$('hint').textContent='Conexión: '+fused+' nudos fusionados.';
+ if(FUS_DUP>0)$('hint').textContent=($('hint').textContent?$('hint').textContent+' · ':'')+FUS_DUP+' elemento(s) superpuesto(s) eliminado(s) (se conserva el original) para no duplicar rigidez ni peso.'}
 function duplicarSeleccion(){
  const items=expandSel(SEL.length?SEL:(sel?[sel]:[]));if(!items.length)return;
  const off=(+$('gs').value||1)/UF('L'),nm=new Map(),newItems=[];
@@ -1843,7 +1845,7 @@ function drawSelectionOverlay(){
 
 
 function fusionarNodos(tol=1e-5){
- tol=tol||1e-5;let fusionados=0;const keep=[],map=new Map();
+ FUS_DUP=0;tol=tol||1e-5;let fusionados=0;const keep=[],map=new Map();
  N.forEach((n,i)=>{
   let tgt=-1;
   for(const k of keep){const m=N[k];if(Math.hypot(n.x-m.x,n.y-m.y,n.z-m.z)<tol){tgt=k;break}}
@@ -1857,7 +1859,24 @@ function fusionarNodos(tol=1e-5){
  SEL=SEL.map(it=>it.t=='n'?{...it,i:fm.get(it.i)}:it).filter(it=>it.i!=null);
  if(sel&&sel.t=='n')sel={...sel,i:fm.get(sel.i)};
  GRUPOS=GRUPOS.map(g=>({...g,items:g.items.map(q=>q.t=='n'?{t:'n',i:fm.get(q.i)}:q).filter(q=>q.i!=null)})).filter(g=>g.items.length>=2);
+ /* Tras fusionar nudos, la copia puede dejar barras, muros o zapatas superpuestos (mismos nudos). Se conserva el original y se eliminan los repetidos: si no, se cuentan dos veces la rigidez y el peso. */
+ FUS_DUP=quitarDuplicados();
  return fusionados}
+function quitarDuplicados(){
+ let quitados=0;
+ const limpia=(arr,t,clave)=>{
+  const vistos=new Map(),map=new Map(),keep=[];
+  arr.forEach((o,i)=>{const k=clave(o);if(k!=null&&vistos.has(k)){map.set(i,vistos.get(k));quitados++}else{if(k!=null)vistos.set(k,keep.length);map.set(i,keep.length);keep.push(o)}});
+  if(keep.length===arr.length)return arr;
+  const rem=q=>q.t==t?{...q,i:map.get(q.i)}:q;
+  SEL=SEL.map(rem).filter((q,k,a)=>a.findIndex(z=>z.t==q.t&&z.i===q.i)===k);
+  if(sel&&sel.t==t)sel=rem(sel);
+  GRUPOS=GRUPOS.map(g=>({...g,items:g.items.map(rem).filter((q,k,a)=>a.findIndex(z=>z.t==q.t&&z.i===q.i)===k)})).filter(g=>g.items.length>=2);
+  return keep};
+ B=limpia(B,'b',r=>r.i===r.j?null:Math.min(r.i,r.j)+'-'+Math.max(r.i,r.j));
+ MUROS=limpia(MUROS,'w',w=>(w.n&&w.n.length)?[...w.n].sort((a,b)=>a-b).join('-'):null);
+ ZAPATAS=limpia(ZAPATAS,'z',z=>z.n==null?null:String(z.n));
+ return quitados}
 
 function form(){const p=$('prop');
  if(SEL.length>1){formMulti(p);return}
