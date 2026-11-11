@@ -1852,7 +1852,7 @@ function fusionarNodos(tol=1e-5){
   if(tgt<0){keep.push(i);map.set(i,i)}
   else{const t=N[tgt];for(let k=0;k<6;k++)t.f[k]+=n.f[k];map.set(i,tgt);fusionados++}
  });
- if(keep.length===N.length)return 0;
+ if(keep.length===N.length){FUS_DUP=quitarDuplicados();return 0;}
  const idx=new Map(),N2=[];keep.forEach(old=>{idx.set(old,N2.length);N2.push(N[old])});
  const fm=new Map();map.forEach((tgt,old)=>{if(idx.has(tgt))fm.set(old,idx.get(tgt))});
  N=N2;B.forEach(r=>{r.i=fm.get(r.i);r.j=fm.get(r.j)});MUROS.forEach(w=>{w.n=w.n.map(i=>fm.get(i))});ZAPATAS.forEach(z=>{z.n=fm.get(z.n)});
