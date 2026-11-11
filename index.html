@@ -1800,8 +1800,10 @@ function translateSelection(dx,dy,dz){
   else if(it.t=='p'){const o=PLATEAS[it.i];if(!o)return;o.pts=o.pts.map(p=>[p[0]+dx,p[1]+dy]);if(o.z!=null)o.z+=dz}
   else if(it.t=='a'){const a=ANOT[it.i];if(!a)return;const sh=p=>[p[0]+dx,p[1]+dy,p[2]+dz];
    if(a.t=='dim'){a.a=sh(a.a);a.b=sh(a.b)}else if(a.t=='line')a.pts=a.pts.map(sh);else if(a.p)a.p=sh(a.p)}});
- fusionarNodos();
- res=null;$('out').innerHTML='';form();draw()}
+ const fused=fusionarNodos();
+ res=null;$('out').innerHTML='';form();draw();
+ if(fused===1)$('hint').textContent='Conexión: 1 nudo fusionado. La copia comparte un solo nudo; el resto trabaja como voladizo. Para que toda la copia siga a la original, conecta más nudos coincidentes.';
+ else if(fused>1)$('hint').textContent='Conexión: '+fused+' nudos fusionados.'}
 function duplicarSeleccion(){
  const items=expandSel(SEL.length?SEL:(sel?[sel]:[]));if(!items.length)return;
  const off=(+$('gs').value||1)/UF('L'),nm=new Map(),newItems=[];
@@ -1841,21 +1843,21 @@ function drawSelectionOverlay(){
 
 
 function fusionarNodos(tol=1e-5){
- tol=tol||1e-5;const keep=[],map=new Map();
+ tol=tol||1e-5;let fusionados=0;const keep=[],map=new Map();
  N.forEach((n,i)=>{
   let tgt=-1;
   for(const k of keep){const m=N[k];if(Math.hypot(n.x-m.x,n.y-m.y,n.z-m.z)<tol){tgt=k;break}}
   if(tgt<0){keep.push(i);map.set(i,i)}
-  else{const t=N[tgt];for(let k=0;k<6;k++)t.f[k]+=n.f[k];map.set(i,tgt)}
+  else{const t=N[tgt];for(let k=0;k<6;k++)t.f[k]+=n.f[k];map.set(i,tgt);fusionados++}
  });
- if(keep.length===N.length)return false;
+ if(keep.length===N.length)return 0;
  const idx=new Map(),N2=[];keep.forEach(old=>{idx.set(old,N2.length);N2.push(N[old])});
  const fm=new Map();map.forEach((tgt,old)=>{if(idx.has(tgt))fm.set(old,idx.get(tgt))});
  N=N2;B.forEach(r=>{r.i=fm.get(r.i);r.j=fm.get(r.j)});MUROS.forEach(w=>{w.n=w.n.map(i=>fm.get(i))});ZAPATAS.forEach(z=>{z.n=fm.get(z.n)});
  SEL=SEL.map(it=>it.t=='n'?{...it,i:fm.get(it.i)}:it).filter(it=>it.i!=null);
  if(sel&&sel.t=='n')sel={...sel,i:fm.get(sel.i)};
  GRUPOS=GRUPOS.map(g=>({...g,items:g.items.map(q=>q.t=='n'?{t:'n',i:fm.get(q.i)}:q).filter(q=>q.i!=null)})).filter(g=>g.items.length>=2);
- return true}
+ return fusionados}
 
 function form(){const p=$('prop');
  if(SEL.length>1){formMulti(p);return}
@@ -2189,7 +2191,7 @@ function setT(t){tool=t;chain=null;poly=null;wchain=null;widx=[];dimA=null;aline
  const h={sel:'Seleccionar: clic en un elemento; Ctrl+clic añade o quita; arrastra en vacío para ventana/cruce. Clic derecho arrastrado gira la vista.',mov:'Mover: selecciona elementos, haz clic en un punto de esquina (snap FIN) y luego en el destino.',bar:'Barra: clic en cada nodo; clic derecho o Esc termina la cadena.',wal:'Muro: clic en el inicio y en el fin del muro (en planta); se levanta desde el nivel actual.',walp:'Muro poligonal: clic en cada vértice de la planta; clic derecho, Esc o doble clic termina. Vuelve al primer vértice para cerrar el polígono.',slb:'Losa: clic en los vértices; cambia el Nivel entre clics para darle desnivel. Clic derecho, Esc o doble clic cierra el polígono.',zap:'Zapata: clic en un nodo con apoyo para crear o seleccionar su zapata aislada.',pla:'Matre: dibuja el rectángulo en planta; calcula con las reacciones de los pilares que caen dentro.',are:'Carga de área: clic sobre una losa para aplicarla, o dibuja el polígono de la carga.',cot:'Cota: clic en el inicio y en el fin. «Orto» la mantiene horizontal o vertical; «Cota diag.» la alinea entre los dos puntos; el pinzamiento FIN engancha nudos y extremos.',lin:'Guía: clic en cada punto; mientras dibujas se muestran el tramo y el total. Cerca de una línea aparece el snap perpendicular ⊥. Clic derecho, Esc o doble clic termina.',txt:'Texto: clic donde quieras la nota y escribe el texto en el panel.',supf:'Apoyo fijo: clic en cada nudo que quieras empotrar (Ux, Uy, Uz, Rx, Ry, Rz).',supp:'Apoyo articulado: clic en los nudos; restringe las traslaciones y deja libres los giros.',supr:'Apoyo de rodillo: clic en los nudos; restringe Uz (apoyo vertical).',supn:'Quitar apoyo: clic en los nudos para dejarlos libres.'}[t]||'';
  $('hint').textContent=h;draw()}
 function view(a,p,pl){C.a=a;C.p=p;if(pl)$('pl').value=pl;fit();draw()}
-function load(n,b,ms,ls,cs,zs,pt,an,gr){N=n;B=b;MUROS=ms||[];LOSAS=ls||[];CARGAS=cs||[];ZAPATAS=zs||[];PLATEAS=pt||[];ANOT=an||[];GRUPOS=gr||[];SEL=[];rubber=null;moveBase=null;sel=null;res=null;chain=null;poly=null;wchain=null;widx=[];dimA=null;aline=null;$('out').innerHTML='';form();mode='model';fit();setM('model')}
+function load(n,b,ms,ls,cs,zs,pt,an,gr){N=n;B=b;MUROS=ms||[];LOSAS=ls||[];CARGAS=cs||[];ZAPATAS=zs||[];PLATEAS=pt||[];ANOT=an||[];GRUPOS=gr||[];SEL=[];rubber=null;moveBase=null;sel=null;fusionarNodos();res=null;chain=null;poly=null;wchain=null;widx=[];dimA=null;aline=null;$('out').innerHTML='';form();mode='model';fit();setM('model')}
 
 /* --- Barra de progreso global --- */
 let PROG_T0=0,PROG_TIMER=null;
