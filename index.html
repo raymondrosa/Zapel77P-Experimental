@@ -9,6 +9,10 @@
 html,body{height:100%;margin:0}
 #cv{cursor:crosshair}body{background:var(--bg);color:var(--fg);font:13px system-ui,-apple-system,"Segoe UI",sans-serif;display:flex;flex-direction:column}
 #tb{display:flex;flex-wrap:wrap;gap:5px;padding:6px 8px;border-bottom:1px solid var(--bd);background:var(--pn);align-items:center;position:relative;z-index:60}
+#tb.colapsada .grup,#tb.colapsada .sp{display:none!important}
+#tb.colapsada{padding:4px 6px;justify-content:flex-end}
+#tb.colapsada #brand{display:none!important}
+#b_tbcol{padding:2px 8px;font-size:16px;line-height:1.1}
 button,input,select,textarea{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--bd);border-radius:6px;padding:4px 8px}
 button{cursor:pointer}button.on{background:var(--ac);color:#fff;border-color:var(--ac)}button.go{background:var(--ok);color:#fff;border-color:var(--ok);font-weight:600}
 .sp{width:1px;height:20px;background:var(--bd);margin:0 3px}
@@ -120,6 +124,7 @@ button,select,input{touch-action:manipulation}
 </style></head><body>
 <div id="tb">
 <span id="brand">Zapel773DWall</span>
+<button type="button" id="b_tbcol" title="Ocultar barra de herramientas">☰</button>
 <span class="grup"><b id="langLbl">Idioma</b><select id="lang" title="Idioma de la interfaz"><option value="es">Español</option><option value="en">English</option></select></span>
 <span class="grup"><span class="lb">Vista</span><button type="button" id="t_orb" title="Órbita: arrastra con el botón izquierdo alrededor del punto bajo el cursor">Órbita</button><button type="button" id="t_pan" title="Pan: arrastra para desplazar la vista">Pan</button></span>
 <span class="grup"><span class="lb">Dibujar</span><button type="button" id="t_sel" class="on">Seleccionar</button><button type="button" id="t_mov">Mover</button><button type="button" id="t_bar">Barra</button><button type="button" id="t_wal">Muro</button><button type="button" id="t_walp">Muro poli</button><button type="button" id="t_slb">Losa</button><button type="button" id="t_are">Carga de área</button><button type="button" id="t_zap">Zapata</button><button type="button" id="t_pla">Matre</button><button type="button" id="b_del">Eliminar</button></span>
@@ -136,6 +141,8 @@ button,select,input{touch-action:manipulation}
 <button type="button" id="vwC" class="smbtn" disabled title="Ver la envolvente de viento (disponible después del análisis de viento)">Viento</button></span>
 <button type="button" class="go" id="b_run">▶ Calcular</button>
 <button type="button" id="b_rust" style="display:none" title="Analizar con el núcleo Rust (beta)">Rust β</button>
+<button type="button" id="b_rust_sismo" style="display:none" title="Análisis sísmico modal espectral con el núcleo Rust (beta)">Rust sísmico β</button>
+<button type="button" id="b_rust_viento" style="display:none" title="Análisis de viento ASCE 7-22 con el núcleo Rust (beta)">Rust viento β</button>
 <button type="button" id="b_rep">📄 Reporte</button>
 <button type="button" id="b_rep3" title="Descargar el reporte como archivo HTML">⬇</button>
 <button type="button" id="b_sismo">Sismo…</button>
@@ -202,7 +209,7 @@ const EN_DICT={
 "Archivo":"File","Nuevo":"New","Abrir":"Open","Guardar":"Save",
 "Ejemplos":"Examples","Edificio":"Building","Pórtico":"Frame","Viga suelo":"Grade beam","Viga acero":"Steel beam",
 "Resultados":"Results","Sismo":"Seismic","Calcular":"Calculate","Reporte":"Report","Sismo…":"Seismic…","Guía rápida":"Quick guide",
-"Vista":"View","Iso":"Iso","Planta":"Plan","Frente":"Front","Lateral":"Side","Encuadrar":"Fit","Secciones":"Sections","Cotas":"Dims","Animar":"Animate",
+"Vista":"View","Órbita":"Orbit","Pan":"Pan","Seleccionar barras iguales":"Select equal beams","Editar sección/E de la selección":"Edit section/E of selection","Mostrar barra de herramientas":"Show toolbar","Ocultar barra de herramientas":"Hide toolbar","Iso":"Iso","Planta":"Plan","Frente":"Front","Lateral":"Side","Encuadrar":"Fit","Secciones":"Sections","Cotas":"Dims","Animar":"Animate",
 "Plano":"Plane","Unidades":"Units","Pantalla":"Screen","Automático":"Auto","Computadora":"Desktop","Tableta":"Tablet","Celular":"Phone",
 "Nivel":"Level","Malla":"Grid","Orto":"Ortho","Polar":"Polar","Cota diag.":"Aligned dim.","Idioma":"Language","Español":"Spanish",
 "Modelo":"Model","Deformada":"Deformed","σ en muros":"Wall σ","q en la matre":"Mat pressure","Mx en la matre":"Mat Mx","My en la matre":"Mat My",
@@ -1786,15 +1793,33 @@ function rectSelect(r){
    if(ok)addIt(it)})});
  if(r.add)setSelection(items,true,false);else setSelection(items,false,false);
  form();draw()}
+function barKey(o){return [o.ty,o.mat,o.b,o.h,o.bf,o.hf,o.bw,o.Dm,o.d,o.tf,o.tw,o.tt,JSON.stringify(o.pts||[]),o.E].join('|')}
+function formMultiBars(p){
+ const arr=SEL.filter(q=>q.t=='b').map(q=>B[q.i]).filter(Boolean);
+ if(!arr.length)return;
+ const o=arr[0],n=arr.length;
+ p.innerHTML='<b>Propiedades de '+n+' barras</b><div class="m">Los cambios se aplican a toda la selección.</div>'+secForm(o)+
+  '<label>E ('+UL('E')+')<input type="number" step="any" data-mk="E" data-md="E" value="'+fmtv(o.E*UF('E'))+'"></label>'+
+  '<label>Subdivisiones<input type="number" step="1" data-mk="div" value="'+fmtv(o.div)+'"></label>'+
+  '<button style="width:100%;margin-top:6px" id="bmBack">Volver</button><button style="width:100%;margin-top:4px" id="bmDel">Eliminar selección</button>';
+ const refresh=()=>{res=null;$('out').innerHTML='';setM('model');form();draw()};
+ p.querySelectorAll('[data-k],[data-mk]').forEach(inp=>inp.onchange=()=>{
+  const k=inp.dataset.k||inp.dataset.mk,v=inp.type=='checkbox'?+inp.checked:+inp.value/UF(inp.dataset.d||inp.dataset.md||'');
+  if(!isFinite(v))return;arr.forEach(q=>{q[k]=v;if(k=='fc'&&q.mat=='H')q.E=+(4.7*Math.sqrt(q.fc)).toPrecision(5)});refresh()});
+ p.querySelectorAll('[data-m]').forEach(inp=>inp.onchange=()=>{
+  const k=inp.dataset.m;arr.forEach(q=>{if(k=='mat'){q.mat=inp.value;if(q.mat=='H')q.E=+(4.7*Math.sqrt(q.fc)).toPrecision(5);if(q.mat=='A')q.E=200}else if(k=='ty')q.ty=inp.value});refresh()});
+ const bk=p.querySelector('#bmBack');if(bk)bk.onclick=()=>form();
+ const bd=p.querySelector('#bmDel');if(bd)bd.onclick=delSeleccion;
+}
 function formMulti(p){
  const counts={};SEL.forEach(q=>{counts[q.t]=(counts[q.t]||0)+1});
  const gi=SEL.length?groupOf(SEL[0].t,SEL[0].i):-1;
  p.innerHTML='<b>'+SEL.length+' elementos seleccionados</b>'+
   (gi>=0?'<div class="m">Grupo: <b>'+GRUPOS[gi].name+'</b> · Alt+clic para seleccionar uno solo.</div>':'')+
   '<div class="m">'+(counts.b?counts.b+' barras · ':'')+(counts.n?counts.n+' nodos · ':'')+(counts.w?counts.w+' muros · ':'')+(counts.s?counts.s+' losas · ':'')+(counts.c?counts.c+' cargas · ':'')+(counts.z?counts.z+' zapatas · ':'')+(counts.p?counts.p+' matres · ':'')+(counts.a?counts.a+' anotaciones':'')+'</div>'+
-  '<button style="width:100%;margin-top:6px" id="bMultiCopy">Copiar / duplicar</button><button style="width:100%;margin-top:4px" id="bMultiMove">Mover con snap</button><button style="width:100%;margin-top:4px" id="bMultiGroup">Agrupar</button><button style="width:100%;margin-top:4px" id="bMultiUngroup">Desagrupar</button><button style="width:100%;margin-top:4px" id="bMultiDel">Eliminar selección</button><div class="m" style="margin-top:6px">Ctrl+clic añade o quita. Arrastra en vacío para seleccionar por ventana (izq→der) o cruce (der→izq).</div>';
+  (SEL.every(q=>q.t=='b')?'<button style="width:100%;margin-top:6px" id="bMultiBars">Editar sección/E de la selección</button>':'')+ '<button style="width:100%;margin-top:6px" id="bMultiCopy">Copiar / duplicar</button><button style="width:100%;margin-top:4px" id="bMultiMove">Mover con snap</button><button style="width:100%;margin-top:4px" id="bMultiGroup">Agrupar</button><button style="width:100%;margin-top:4px" id="bMultiUngroup">Desagrupar</button><button style="width:100%;margin-top:4px" id="bMultiDel">Eliminar selección</button><div class="m" style="margin-top:6px">Ctrl+clic añade o quita. Arrastra en vacío para seleccionar por ventana (izq→der) o cruce (der→izq).</div>';
  const b1=p.querySelector('#bMultiCopy'),b2=p.querySelector('#bMultiMove'),b3=p.querySelector('#bMultiGroup'),b4=p.querySelector('#bMultiUngroup'),b5=p.querySelector('#bMultiDel');
- if(b1)b1.onclick=duplicarSeleccion;if(b2)b2.onclick=()=>setT('mov');if(b3)b3.onclick=agruparSeleccion;if(b4)b4.onclick=desagruparSeleccion;if(b5)b5.onclick=delSeleccion}
+ if(b1)b1.onclick=duplicarSeleccion;if(b2)b2.onclick=()=>setT('mov');if(b3)b3.onclick=agruparSeleccion;if(b4)b4.onclick=desagruparSeleccion;if(b5)b5.onclick=delSeleccion;const bb=p.querySelector('#bMultiBars');if(bb)bb.onclick=()=>formMultiBars(p)}
 function agruparSeleccion(){
  const items=SEL.slice();if(items.length<2)return;
  const inS=q=>SEL.some(x=>sameItem(x,q));
@@ -1933,11 +1958,11 @@ const nd=sel.t=='n',o=nd?N[sel.i]:B[sel.i],num=(k,l,i,kd)=>'<label>'+l+(kd?' ('+
  p.innerHTML=nd?'<b>Nodo '+(sel.i+1)+'</b>'+[['x','X'],['y','Y'],['z','Z']].map(([k,l])=>num(k,l,null,'L')).join('')+
   '<label>Apoyo<select id="pre"><option value="">Elegir…</option>'+['0','1','2','3'].map((v,i)=>'<option value="'+v+'"'+(sv===v?' selected':'')+'>'+['Libre','Fijo (empotrado)','Articulado','Rodillo (Uz)'][i]+'</option>').join('')+'</select></label><div>'+
   RL.map((l,k)=>'<label class="ck"><input type="checkbox" data-k="r" data-i="'+k+'"'+(o.r[k]?' checked':'')+'>'+l+'</label>').join('')+'</div>'+FL.map((l,k)=>num('f',l,k,k<3?'F':'FL')).join('')
-  :'<b>Barra '+(sel.i+1)+'</b> <span class="m">(N'+(o.i+1)+'→N'+(o.j+1)+', L = '+(axes(o).L*UF('L')).toFixed(3)+' '+UL('L')+')</span>'+secForm(o)+[['E','E','E'],['ang','Giro de la sección (°)',''],['wa','w inicio (↓ gravedad +)','q'],['wb','w final (↓ gravedad +)','q'],['xa','wx inicio (→ +X)','q'],['xb','wx final (→ +X)','q'],['ya','wy inicio (→ +Y)','q'],['yb','wy final (→ +Y)','q'],['pza','w perp. z inicio (local, ↓ +)','q'],['pzb','w perp. z final (local, ↓ +)','q'],['pya','w perp. y inicio (local, → +)','q'],['pyb','w perp. y final (local, → +)','q'],['kz','ks vertical (local z)','k'],['ky','ks lateral (local y)','k'],['div','Subdivisiones','']].map(([k,l,kd])=>num(k,l,null,kd)).join('')+'<label class="ck"><input type="checkbox" data-k="a1"'+(o.a1?' checked':'')+'>Articulación inicio</label><label class="ck"><input type="checkbox" data-k="a2"'+(o.a2?' checked':'')+'>Articulación final</label>'+'<button id="ap" style="margin-top:6px;width:100%">Aplicar sección y E a todas</button>';
+  :'<b>Barra '+(sel.i+1)+'</b> <span class="m">(N'+(o.i+1)+'→N'+(o.j+1)+', L = '+(axes(o).L*UF('L')).toFixed(3)+' '+UL('L')+')</span>'+secForm(o)+[['E','E','E'],['ang','Giro de la sección (°)',''],['wa','w inicio (↓ gravedad +)','q'],['wb','w final (↓ gravedad +)','q'],['xa','wx inicio (→ +X)','q'],['xb','wx final (→ +X)','q'],['ya','wy inicio (→ +Y)','q'],['yb','wy final (→ +Y)','q'],['pza','w perp. z inicio (local, ↓ +)','q'],['pzb','w perp. z final (local, ↓ +)','q'],['pya','w perp. y inicio (local, → +)','q'],['pyb','w perp. y final (local, → +)','q'],['kz','ks vertical (local z)','k'],['ky','ks lateral (local y)','k'],['div','Subdivisiones','']].map(([k,l,kd])=>num(k,l,null,kd)).join('')+'<label class="ck"><input type="checkbox" data-k="a1"'+(o.a1?' checked':'')+'>Articulación inicio</label><label class="ck"><input type="checkbox" data-k="a2"'+(o.a2?' checked':'')+'>Articulación final</label>'+'<button id="ap" style="margin-top:6px;width:100%">Aplicar sección y E a todas</button><button id="bSelSame" style="margin-top:4px;width:100%">Seleccionar barras iguales</button>';
  p.querySelectorAll('[data-k]').forEach(i=>i.onchange=()=>{const k=i.dataset.k,v=i.type=='checkbox'?+i.checked:+i.value/UF(i.dataset.d);if(i.dataset.i!=null)o[k][+i.dataset.i]=v;else o[k]=v;if(k=='fc'&&o.mat=='H'){o.E=+(4.7*Math.sqrt(o.fc)).toPrecision(5);const ei=p.querySelector('[data-k=E]');if(ei)ei.value=fmtv(o.E*UF('E'))}if(!nd&&$('sr'))$('sr').innerHTML=secInfo(o);res=null;$('out').innerHTML='';setM('model');if(k=='r')form()});
  p.querySelectorAll('[data-m]').forEach(i=>i.onchange=()=>{const k=i.dataset.m;if(k=='mat'){o.mat=i.value;if(o.mat=='H')o.E=+(4.7*Math.sqrt(o.fc)).toPrecision(5);if(o.mat=='A')o.E=200}else if(k=='ty')o.ty=i.value;else if(k=='prf'){const q=PRE[+i.value];if(!q)return;o.ty='I';[o.d,o.bf,o.tf,o.tw]=q.slice(1);o.mat='A';o.E=200}else if(k=='pts'){const P=i.value.split('\n').map(l=>l.split(/[,;\s]+/).filter(Boolean).map(Number)).filter(q=>q.length>=2&&q.every(isFinite)).map(q=>[q[0]/UF('s'),q[1]/UF('s')]);if(P.length>=3)o.pts=P}res=null;$('out').innerHTML='';form();setM('model')});
  const pre=$('pre');if(pre)pre.onchange=()=>{if(pre.value==='')return;o.r=[[0,0,0,0,0,0],[1,1,1,1,1,1],[1,1,1,0,0,0],[0,0,1,0,0,0]][+pre.value];res=null;$('out').innerHTML='';form();setM('model')};
- const ap=$('ap');if(ap)ap.onclick=()=>{B.forEach(r=>Object.assign(r,{ty:o.ty,b:o.b,h:o.h,bf:o.bf,hf:o.hf,bw:o.bw,Dm:o.Dm,d:o.d,tf:o.tf,tw:o.tw,tt:o.tt,pts:o.pts,mat:o.mat,fc:o.fc,E:o.E}));res=null;setM('model')}}
+ const ap=$('ap');if(ap)ap.onclick=()=>{B.forEach(r=>Object.assign(r,{ty:o.ty,b:o.b,h:o.h,bf:o.bf,hf:o.hf,bw:o.bw,Dm:o.Dm,d:o.d,tf:o.tf,tw:o.tw,tt:o.tt,pts:o.pts,mat:o.mat,fc:o.fc,E:o.E}));res=null;setM('model')};const ss=$('bSelSame');if(ss)ss.onclick=()=>{const key=barKey(o);SEL=[];B.forEach((r,i)=>{if(barKey(r)==key)SEL.push({t:'b',i})});sel=SEL.length?{t:'b',i:SEL[0].i}:null;form();draw()}}
 /* ---------- Muros, losas y cargas de área: edición ---------- */
 let polyZ=0;
 function numF(o,k,l,kd,i){const v=i==null?o[k]:o[k][i];return '<label>'+l+(kd?' ('+UL(kd)+')':'')+'<input type="number" step="any" data-k="'+k+'" data-d="'+(kd||'')+'"'+(i==null?'':' data-i="'+i+'"')+' value="'+fmtv(v*UF(kd))+'"></label>'}
@@ -2941,6 +2966,42 @@ function verDeformadaRust(){
  res={u:(r.u||[]).slice(0,N.length*6),R:(r.reactions||[]).slice(0,N.length*6),smp:r.smp,dmax:(r.analysis&&r.analysis.dmax)||0,ext:{},wsm:[],muros:[],memb:[]};
  resG=null;resS=null;resV=null;sisOn=false;vieOn=false;updateSisUI();updateVieUI();setM('def');draw();
 }
+async function rustVientoRun(){
+ const o=$('out');if(!o)return;
+ if(!(window.ZAPEL_DESKTOP&&window.ZAPEL_DESKTOP.solveRust)){o.innerHTML='<span class="er">El análisis Rust solo está disponible en la versión de escritorio.</span>';return}
+ const modelo={app:'zapel-3d',v:5,units:cu,N,B,MUROS,LOSAS,CARGAS,ZAPATAS,PLATEAS,ANOT,GRUPOS};
+ o.innerHTML='<span class="m">Calculando viento con Rust…</span>';
+ try{
+  const wv=(typeof VIENTO!=='undefined'&&VIENTO)||{};
+  const wo={viento:true,v:wv.V,exp:wv.exp,kzt:wv.Kzt,kd:wv.Kd,ke:wv.Ke,g:wv.G,cpw:wv.Cpw,cpl:wv.Cpl,gcpi:wv.GCpi,techo:wv.techo};
+  const r=await window.ZAPEL_DESKTOP.solveRust(modelo,wo);
+  if(!r||!r.ok){o.innerHTML='<span class="er">Rust viento: '+((r&&r.error)||'sin respuesta')+'</span>';return}
+  const w=r.wind||{};
+  let h='<b>Viento ASCE 7-22 · Rust</b><div class="m">V = '+fmtEsc(w.V)+' mph · exposición '+w.exposure+' · h = '+fmtEsc(w.h)+' m · qh = '+fmtEsc(w.qh)+' psf</div>';
+  h+='<table><tr><th>Cortante basal</th><td>'+fmtEsc(w.Vbase)+'</td></tr><tr><th>Vuelco</th><td>'+fmtEsc(w.Mbase)+'</td></tr><tr><th>Succión techo</th><td>'+fmtEsc(w.roofF)+'</td></tr></table>';
+  if(w.levels&&w.levels.length)h+='<table><tr><th>z</th><th>Kz</th><th>pN</th><th>FX</th></tr>'+w.levels.map(L=>'<tr><td>'+fmtEsc(L.z)+'</td><td>'+fmtEsc(L.kz)+'</td><td>'+fmtEsc(L.pN)+'</td><td>'+fmtEsc(L.FX)+'</td></tr>').join('')+'</table>';
+  if(r.cases&&r.cases.length)h+='<table><tr><th>Caso</th><th>Cortante</th><th>dmax</th></tr>'+r.cases.map(c=>'<tr><td>'+c.dir+(c.sign>0?'+':'-')+'</td><td>'+fmtEsc(c.base_shear)+'</td><td>'+fmtEsc(c.dmax)+'</td></tr>').join('')+'</table>';
+  if(r.warnings&&r.warnings.length)h+='<div class="m" style="font-size:11px">'+r.warnings.slice(0,8).join('<br>')+'</div>';
+  o.innerHTML=h;if($('stz'))$('stz').textContent='Viento Rust completado.';
+ }catch(e){o.innerHTML='<span class="er">Rust viento: '+e.message+'</span>'}
+}
+async function rustSismoRun(){
+ const o=$('out');if(!o)return;
+ if(!(window.ZAPEL_DESKTOP&&window.ZAPEL_DESKTOP.solveRust)){o.innerHTML='<span class="er">El análisis Rust solo está disponible en la versión de escritorio.</span>';return}
+ const modelo={app:'zapel-3d',v:5,units:cu,N,B,MUROS,LOSAS,CARGAS,ZAPATAS,PLATEAS,ANOT,GRUPOS};
+ const p=(typeof SISMO!=='undefined'&&SISMO)||{},nmo=Math.max(1,Math.min(+p.nmo||3,5));
+ o.innerHTML='<span class="m">Calculando sismo modal con Rust…</span>';
+ try{
+  const r=await window.ZAPEL_DESKTOP.solveRust(modelo,{sismo:true,modes:nmo});
+  if(!r||!r.ok){o.innerHTML='<span class="er">Rust sísmico: '+((r&&r.error)||'sin respuesta')+'</span>';return}
+  let h='<b>Sismo modal espectral · Rust</b><div class="m">'+(r.solver||'')+'</div>';
+  if(r.spectrum)h+='<table><tr><th>SDS</th><td>'+fmtEsc(r.spectrum.sds)+'</td></tr><tr><th>SD1</th><td>'+fmtEsc(r.spectrum.sd1)+'</td></tr><tr><th>T0</th><td>'+fmtEsc(r.spectrum.t0)+' s</td></tr><tr><th>Ts</th><td>'+fmtEsc(r.spectrum.ts)+' s</td></tr></table>';
+  if(r.analysis)h+='<table><tr><th>GDL</th><td>'+(r.analysis.dof||'')+'</td></tr><tr><th>Modos</th><td>'+(r.analysis.modes||'')+'</td></tr><tr><th>Peso</th><td>'+fmtEsc(r.analysis.total_weight)+'</td></tr></table>';
+  if(r.directions){h+='<table><tr><th>Dir</th><th>Cortante</th><th>dmax</th></tr>'+['X','Y'].map(d=>'<tr><td>'+d+'</td><td>'+fmtEsc(r.directions[d].base_shear)+'</td><td>'+fmtEsc(r.directions[d].dmax)+'</td></tr>').join('')+'</table>'}
+  if(r.warnings&&r.warnings.length)h+='<div class="m" style="font-size:11px">'+r.warnings.slice(0,8).join('<br>')+'</div>';
+  o.innerHTML=h;if($('stz'))$('stz').textContent='Sismo modal Rust completado.';
+ }catch(e){o.innerHTML='<span class="er">Rust sísmico: '+e.message+'</span>'}
+}
 async function rustRun(){
  const o=$('out');if(!o)return;
  if(!(window.ZAPEL_DESKTOP&&window.ZAPEL_DESKTOP.solveRust)){o.innerHTML='<span class="er">El análisis Rust solo está disponible en la versión de escritorio.</span>';return}
@@ -2960,8 +3021,17 @@ async function rustRun(){
   if($('stz'))$('stz').textContent='Análisis Rust completado.';
  }catch(e){o.innerHTML='<span class="er">Rust: '+e.message+'</span>'}
 }
-if(window.ZAPEL_DESKTOP&&window.ZAPEL_DESKTOP.isDesktop){const br=$('b_rust');if(br){br.style.display='inline-block';br.onclick=rustRun}}
-if(cv)cv.title='Órbita: botón central o Alt + arrastrar · Zoom: rueda · Desplazar: Shift + arrastrar';addEventListener('resize',draw);$('un').value=cu;$('gs').value=1;document.querySelectorAll('[data-u]').forEach(s=>s.textContent=UL(s.dataset.u));$('b_ex4').click();setM('model');syncDef();
+if(window.ZAPEL_DESKTOP&&window.ZAPEL_DESKTOP.isDesktop){const br=$('b_rust');if(br){br.style.display='inline-block';br.onclick=rustRun}const bs=$('b_rust_sismo');if(bs){bs.style.display='inline-block';bs.onclick=rustSismoRun}const bv=$('b_rust_viento');if(bv){bv.style.display='inline-block';bv.onclick=rustVientoRun}}
+if(cv)cv.title='Órbita: botón central o Alt + arrastrar · Zoom: rueda · Desplazar: Shift + arrastrar';function toggleBarra(){
+ const tb=$('tb'),b=$('b_tbcol'),col=!tb.classList.contains('colapsada');
+ tb.classList.toggle('colapsada',col);b.textContent='☰';
+ b.title=col?'Mostrar barra de herramientas':'Ocultar barra de herramientas';
+ try{localStorage.setItem('zapel-toolbar-collapsed',col?'1':'0')}catch(e){}
+ draw();
+}
+if($('b_tbcol'))$('b_tbcol').onclick=toggleBarra;
+try{if(localStorage.getItem('zapel-toolbar-collapsed')==='1'){$('tb').classList.add('colapsada');$('b_tbcol').title='Mostrar barra de herramientas'}}catch(e){}
+addEventListener('resize',draw);$('un').value=cu;$('gs').value=1;document.querySelectorAll('[data-u]').forEach(s=>s.textContent=UL(s.dataset.u));$('b_ex4').click();setM('model');syncDef();
 if($('lang'))$('lang').onchange=()=>setLang($('lang').value);
 try{const lg=localStorage.getItem('zapel-lang');if(lg==='en'){LANG='en';if($('lang'))$('lang').value='en'}}catch(e){}
 if(LANG==='en')setLang('en');else applyLang(document.body);
