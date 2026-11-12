@@ -123,20 +123,30 @@ button,select,input{touch-action:manipulation}
 
 /* Menu lateral izquierdo */
 body{flex-direction:row;overflow:hidden}
-#side{width:245px;flex:0 0 245px;height:100vh;overflow-y:auto;overflow-x:hidden;background:var(--pn);border-right:1px solid var(--bd);z-index:60;display:flex;flex-direction:column;gap:2px;padding:6px}
+#side{width:205px;max-width:205px;flex:0 0 205px;height:100vh;overflow-y:auto;overflow-x:hidden;background:var(--pn);border-right:1px solid var(--bd);z-index:60;display:flex;flex-direction:column;gap:2px;padding:6px}
+#side button{font-size:14px;padding:4px 5px;white-space:normal;line-height:1.2;text-align:left;display:inline-flex;align-items:center;gap:4px;min-width:0;width:100%}
+#side .grup{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;width:100%;align-items:stretch;margin:0 0 5px}
+#side .grup button{width:100%;min-width:0;justify-content:flex-start;overflow-wrap:anywhere}
+#side .grup .lb{grid-column:1/-1;width:100%;line-height:1.3;margin-top:3px;font-size:13px}
+#side .grup #hint,#side .grup input,#side .grup select{grid-column:1/-1;width:100%}
 #side #tb,#side #tb2{display:flex;flex-direction:column;flex-wrap:nowrap;gap:3px;width:100%;padding:0;border:0;background:transparent;overflow:visible;align-items:stretch}
 #side .grup{display:flex;flex-wrap:wrap;gap:3px;width:100%;align-items:center;margin:0 0 5px}
 #side .grup .lb,#side .grup>b{display:block;width:100%;font-size:11px;color:var(--mut);font-weight:600}
 #side .sp{display:none!important}
-#side #brand{display:block!important;font-size:15px;margin-bottom:4px}
+#side #brand{display:block!important;font-size:16px;margin-bottom:4px}
 #side #b_tbcol{width:100%;order:-1}
 #side #hint{font-size:10px;line-height:1.3;max-height:52px;overflow:auto}
-#side.colapsada{width:42px;flex-basis:42px;padding:4px}
-#side.colapsada #tb .grup,#side.colapsada #tb2,#side.colapsada #brand{display:none!important}
-#side.colapsada #b_tbcol{width:32px}
+#side.colapsada{width:46px;flex-basis:46px;padding:4px 3px;border-right:1px solid var(--bd);overflow:visible}
+#side.colapsada #tb,#side.colapsada #tb2,#side.colapsada #brand,#side.colapsada #hint{display:none!important}
+#rail{display:none;flex-direction:column;gap:5px;width:100%;align-items:center}
+#side.colapsada #rail{display:flex}
+#rail button{width:38px!important;height:38px;padding:0!important;font-size:18px;line-height:1;display:flex!important;align-items:center;justify-content:center;color:var(--fg)}
+#side.colapsada #tb{display:block;padding:0;border:0}
+#b_tbcol{position:fixed;left:205px;top:50%;transform:translateY(-50%);z-index:90;width:24px!important;min-width:24px!important;max-width:24px!important;height:40px;padding:0!important;font-size:16px;line-height:1;border-radius:0 7px 7px 0;background:var(--pn);box-shadow:0 1px 5px #0003}
+#side.colapsada #b_tbcol{left:46px!important;top:6px!important;transform:none;border-radius:0 7px 7px 0;width:22px!important;height:34px;font-size:14px}
 #mn{flex:1;min-width:0}
 #pn{width:300px}
-@media(max-width:760px){#side{width:190px;flex-basis:190px}#pn{width:230px}}
+@media(max-width:760px){#side{width:180px;max-width:180px;flex-basis:180px}#pn{width:230px}#b_tbcol{left:180px}}
 
 
 /* Panel derecho desplegable */
@@ -157,11 +167,26 @@ body{flex-direction:row;overflow:hidden}
 #b_rep::before{content:"▤ "}#b_rust::before{content:"⚙ "}#b_rust_sismo::before{content:"◈ "}#b_rust_viento::before{content:"≋ "}
 #b_guide::before{content:"? "}#b_help::before{content:"i "}
 #side .grup .lb::before{content:"▸ "}
+
+#side .grup .lb::before{color:var(--ac)}
+#t_orb::before{color:#0ea5e9}#t_pan::before{color:#14b8a6}
+#t_sel::before{color:#2563eb}#t_mov::before{color:#f59e0b}#t_bar::before{color:#7c3aed}
+#t_wal::before{color:#dc2626}#t_walp::before{color:#db2777}#t_slb::before{color:#0891b2}
+#t_are::before{color:#ca8a04}#t_zap::before{color:#92400e}#t_pla::before{color:#475569}
+#b_del::before{color:#dc2626}#t_supf::before{color:#16a34a}#t_supp::before{color:#22c55e}
+#t_supr::before{color:#65a30d}#t_supn::before{color:#94a3b8}
+#t_cot::before{color:#0f766e}#t_lin::before{color:#0d9488}#t_txt::before{color:#334155}
+#b_clr::before{color:#dc2626}#b_open::before{color:#2563eb}#b_save::before{color:#16a34a}
+#b_rep::before{color:#7c3aed}#b_rust::before{color:#e11d48}#b_rust_sismo::before{color:#f97316}
+#b_rust_elf::before{color:#eab308}#b_rust_viento::before{color:#06b6d4}
+#b_guide::before{color:#0891b2}#b_help::before{color:#64748b}
+/* Que el boton activo conserve el icono blanco */
+#side button.on::before{color:#fff!important}
 </style></head><body>
 <div id="side">
 <div id="tb">
 <span id="brand">Zapel773DWall</span>
-<button type="button" id="b_tbcol" title="Ocultar barra de herramientas">☰</button>
+<button type="button" id="b_tbcol" title="Ocultar menú lateral">‹</button>
 <span class="grup"><b id="langLbl">Idioma</b><select id="lang" title="Idioma de la interfaz"><option value="es">Español</option><option value="en">English</option></select></span>
 <span class="grup"><span class="lb">Vista</span><button type="button" id="t_orb" title="Órbita: arrastra con el botón izquierdo alrededor del punto bajo el cursor">Órbita</button><button type="button" id="t_pan" title="Pan: arrastra para desplazar la vista">Pan</button></span>
 <span class="grup"><span class="lb">Nivel vista</span><select id="lvlVis" title="Muestra solo hasta el nivel elegido"><option value="">Todos</option></select></span>
@@ -180,6 +205,7 @@ body{flex-direction:row;overflow:hidden}
 <button type="button" class="go" id="b_run">▶ Calcular</button>
 <button type="button" id="b_rust" style="display:none" title="Analizar con el núcleo Rust (beta)">Rust β</button>
 <button type="button" id="b_rust_sismo" style="display:none" title="Análisis sísmico modal espectral con el núcleo Rust (beta)">Rust sísmico β</button>
+<button type="button" id="b_rust_elf" style="display:none" title="Fuerza lateral equivalente ASCE/PRBC con Rust (beta)">Rust ELF β</button>
 <button type="button" id="b_rust_viento" style="display:none" title="Análisis de viento ASCE 7-22 con el núcleo Rust (beta)">Rust viento β</button>
 <button type="button" id="b_rep">📄 Reporte</button>
 <button type="button" id="b_rep3" title="Descargar el reporte como archivo HTML">⬇</button>
@@ -187,6 +213,16 @@ body{flex-direction:row;overflow:hidden}
 <button type="button" id="b_viento">Viento…</button>
 <button type="button" id="b_guide" title="Guía rápida de uso">Guía</button>
 <button type="button" id="b_help" title="Ayuda y atajos">?</button>
+</div>
+<div id="rail">
+<button type="button" id="r_toggle" title="Mostrar menú">›</button>
+<button type="button" id="r_run" title="Calcular">▶</button>
+<button type="button" id="r_rep" title="Reporte">▤</button>
+<button type="button" id="r_rep3" title="Descargar reporte">⬇</button>
+<button type="button" id="r_sismo" title="Sismo…">◈</button>
+<button type="button" id="r_viento" title="Viento…">≋</button>
+<button type="button" id="r_guide" title="Guía">?</button>
+<button type="button" id="r_help" title="Ayuda">i</button>
 </div>
 <div id="tb2">
 <span class="grup"><span class="lb">Vista</span><button type="button" id="v_iso">Iso</button><button type="button" id="v_xy">Planta</button><button type="button" id="v_xz">Frente</button><button type="button" id="v_yz">Lateral</button><button type="button" id="b_fit">Encuadrar</button><button type="button" id="zi">＋</button><button type="button" id="zo">－</button><label class="ck"><input type="checkbox" id="vs" checked> Secciones</label><label class="ck"><input type="checkbox" id="cm" checked> Cotas</label><button type="button" id="b_an">▶ Animar</button><span class="grup">×<input id="df" type="number" value="1" step="0.5" min="0.1" style="width:52px"></span></span>
@@ -375,7 +411,7 @@ const D={ty:'rect',b:0.4572,h:0.4572,bf:.15,hf:.12,bw:.25,Dm:.4,d:.3,tf:.01,tw:.
 const DESKTOP_MODE=!!(window.ZAPEL_DESKTOP&&window.ZAPEL_DESKTOP.isDesktop),MAX_DOF=DESKTOP_MODE?9000:6000,WARN_DOF=DESKTOP_MODE?5000:3500;
 let cu='IM';const UN={SI:{L:['m',1],F:['kN',1],FL:['kN·m',1],q:['kN/m',1],E:['GPa',1],k:['kN/m³',1],d:['mm',1000],s:['mm',1000],fc:['MPa',1],A:['cm²',1e4],I:['cm⁴',1e8],p:['kN/m²',1],gw:['kN/m³',1],ar:['m²',1]},IM:{L:['ft',3.28084],F:['kip',.224809],FL:['kip·ft',.737562],q:['kip/ft',.068522],E:['ksi',145.038],k:['kip/ft³',.006366],d:['in',39.3701],s:['in',39.3701],fc:['ksi',.145038],A:['in²',1550.003],I:['in⁴',2402510],p:['ksf',.0208854],gw:['kip/ft³',.00636588],ar:['ft²',10.7639]}},UF=k=>k?UN[cu][k][1]:1,UL=k=>UN[cu][k][0],fmtv=v=>+v.toPrecision(6),KM={N:'F',Vy:'F',Vz:'F',T:'FL',My:'FL',Mz:'FL',Sy:'q',Sz:'q'};
 let FUS_DUP=0;
-let N=[],B=[],MUROS=[],LOSAS=[],CARGAS=[],ZAPATAS=[],PLATEAS=[],ANOT=[],SEL=[],GRUPOS=[],rubber=null,moveBase=null,sismoRes=null,MODAL=null,vientoRes=null,resV=null,vieOn=false,tool='sel',sel=null,res=null,resG=null,resS=null,sisOn=false,mode='model',chain=null,poly=null,drag=null,ms=null,C={a:-.6,p:.45,S:40,ox:300,oy:300},ZV=null,dpr=devicePixelRatio||1;
+let N=[],B=[],MUROS=[],LOSAS=[],CARGAS=[],ZAPATAS=[],PLATEAS=[],ANOT=[],SEL=[],GRUPOS=[],rubber=null,moveBase=null,sismoRes=null,MODAL=null,vientoRes=null,resV=null,vieOn=false,tool='sel',sel=null,res=null,resG=null,resS=null,sisOn=false,mode='model',chain=null,poly=null,drag=null,ms=null,C={a:-.6,p:.45,S:40,ox:300,oy:300},ZV=null,resC=null,dpr=devicePixelRatio||1;
 /* estado de dibujo: muro poligonal, cotas y guías */
 let WGRP=0,wchain=null,widx=[],dimA=null,aline=null,ortho=true,polar=0,shiftDown=false,cdiag=false,SNAP=null;
 /* valores por defecto de los objetos nuevos (siempre en unidades internas: m, kN, kN/m²) */
@@ -1646,6 +1682,33 @@ function draw(){
    g.lineWidth=1}
   if(!R){g.strokeStyle=g.fillStyle='#dc2626';[0,1,2].forEach(k=>{const v=n.f[k];if(v){const d=[0,0,0];d[k]=Math.sign(v)*38/C.S;const q=proj(n.x-d[0],n.y-d[1],n.z-d[2]);arrow(q[0],q[1],p[0],p[1])}});
    if(n.f.slice(3).some(v=>v))g.fillText('M'+n.f.slice(3).map(v=>+(v*UF('FL')).toFixed(2)),p[0]+8,p[1]-8)}});
+  if(resC&&resC.slabs&&resC.slabs.length){
+   let all=[];resC.slabs.forEach(a=>{if(a)all.push(...a.map(q=>q.s1))});if(all.length){const mn=Math.min(...all),mx=Math.max(...all),rg=Math.max(mx-mn,1e-12);
+    resC.slabs.forEach(a=>{(a||[]).forEach(q=>{const t=(q.s1-mn)/rg,p=proj(q.p[0],q.p[1],q.p[2]);g.fillStyle='hsl('+(240-240*t)+',85%,50%)';g.globalAlpha=.65;g.beginPath();g.arc(p[0],p[1],5,0,7);g.fill();g.globalAlpha=1})});
+    g.fillStyle=fg;g.font='11px system-ui';g.fillText('Tensión de losas Rust · σ1 '+mn.toPrecision(3)+' – '+mx.toPrecision(3),12,18);
+   }
+  }
+  if(resC&&resC.wall&&resC.wall.length){
+   MUROS.forEach((w,wi)=>{const vals=resC.wall[wi];if(!vals||!vals.length||!wallGeo(w))return;const wg=wallGeo(w);
+    const mn=Math.min(...vals),mx=Math.max(...vals),t=(mx-mn)>1e-12?((vals[Math.floor(vals.length/2)]||0)-mn)/(mx-mn):.5;
+    g.strokeStyle='hsl('+(240-240*t)+',85%,45%)';g.lineWidth=5;g.beginPath();g.moveTo(...proj(wg.p[0].x,wg.p[0].y,wg.p[0].z));g.lineTo(...proj(wg.p[1].x,wg.p[1].y,wg.p[1].z));g.stroke();
+    g.lineWidth=1;g.fillStyle=fg;g.font='10px system-ui';g.fillText((mx-mn)>1e-12?mn.toPrecision(3)+'–'+mx.toPrecision(3):mn.toPrecision(3),proj(wg.p[0].x,wg.p[0].y,wg.p[0].z)[0]+4,proj(wg.p[0].x,wg.p[0].y,wg.p[0].z)[1]-6);
+   });
+   g.fillStyle=fg;g.font='11px system-ui';g.fillText('Tensión de muros Rust',12,18);
+  }
+  if(resC&&resC.mats&&resC.mats.length){
+   resC.mats.forEach(M=>{const gg=M.grid||[],nx=M.nx||0,ny=M.ny||0;if(!gg.length||!nx||!ny)return;let mn=Math.min(...gg),mx=Math.max(...gg),rg=Math.max(mx-mn,1e-12);
+    for(let j=0;j<=ny;j++)for(let i=0;i<=nx;i++){const q=gg[j*(nx+1)+i];if(!isFinite(q))continue;const x=M.x0+i*M.sx,y=M.y0+j*M.sy,t=(q-mn)/rg;
+     const p=proj(x,y,M.z);g.fillStyle='hsl('+(240-240*t)+',85%,50%)';g.globalAlpha=.6;g.beginPath();g.arc(p[0],p[1],5,0,7);g.fill();g.globalAlpha=1}
+   });
+   g.fillStyle=fg;g.font='11px system-ui';g.fillText('Presión de matres Rust',12,18);
+  }
+  if(resC&&resC.disp&&resC.disp.length){
+   const vs=resC.disp.filter(v=>isFinite(v)),mn=Math.min(...vs),mx=Math.max(...vs),rg=Math.max(mx-mn,1e-12);
+   N.forEach((n,i)=>{if(VZ!=null&&n.z>VZ+1e-6)return;const v=resC.disp[i];if(!isFinite(v))return;const q=proj(n.x,n.y,n.z),t=(v-mn)/rg;
+    g.globalAlpha=.55;g.fillStyle='hsl('+(240-240*t)+',85%,50%)';g.beginPath();g.arc(q[0],q[1],7,0,7);g.fill();g.globalAlpha=1});
+   g.fillStyle=fg;g.font='11px system-ui';g.fillText((resC.label||'Contorno Rust')+': '+mn.toPrecision(3)+' – '+mx.toPrecision(3),12,18);
+  }
   if(R&&mode=='def'){const k0=50/(res.dmax*C.S)*(+$('df').value||1),k=k0*af;g.strokeStyle='#2563eb';g.lineWidth=2;g.lineJoin='round';g.lineCap='round';
    res.smp.forEach(b=>{if(!b.length)return;g.beginPath();b.forEach((q,i)=>{const p=proj(q.P[0]+q.d[0]*k,q.P[1]+q.d[1]*k,q.P[2]+q.d[2]*k);i?g.lineTo(...p):g.moveTo(...p)});g.stroke();
    let im=0;b.forEach((q,i)=>{if(Math.hypot(...q.d)>Math.hypot(...b[im].d))im=i});const q=b[im],dm=Math.hypot(...q.d);if(dm>1e-12){const p=proj(q.P[0]+q.d[0]*k,q.P[1]+q.d[1]*k,q.P[2]+q.d[2]*k);g.fillStyle='#2563eb';g.beginPath();g.arc(p[0],p[1],3,0,7);g.fill();g.fillStyle=fg;g.fillText((dm*UF('d')).toPrecision(3)+' '+UL('d'),p[0]+6,p[1]+14)}});
@@ -2320,7 +2383,7 @@ function setT(t){tool=t;chain=null;poly=null;wchain=null;widx=[];dimA=null;aline
  const h={sel:'Seleccionar: clic en un elemento; Ctrl+clic añade o quita; arrastra en vacío para ventana/cruce. Clic derecho arrastrado gira la vista.',mov:'Mover: selecciona elementos, haz clic en un punto de esquina (snap FIN) y luego en el destino.',bar:'Barra: clic en cada nodo; clic derecho o Esc termina la cadena.',wal:'Muro: clic en el inicio y en el fin del muro (en planta); se levanta desde el nivel actual.',walp:'Muro poligonal: clic en cada vértice de la planta; clic derecho, Esc o doble clic termina. Vuelve al primer vértice para cerrar el polígono.',slb:'Losa: clic en los vértices; cambia el Nivel entre clics para darle desnivel. Clic derecho, Esc o doble clic cierra el polígono.',zap:'Zapata: clic en un nodo con apoyo para crear o seleccionar su zapata aislada.',pla:'Matre: dibuja el rectángulo en planta; calcula con las reacciones de los pilares que caen dentro.',are:'Carga de área: clic sobre una losa para aplicarla, o dibuja el polígono de la carga.',cot:'Cota: clic en el inicio y en el fin. «Orto» la mantiene horizontal o vertical; «Cota diag.» la alinea entre los dos puntos; el pinzamiento FIN engancha nudos y extremos.',lin:'Guía: clic en cada punto; mientras dibujas se muestran el tramo y el total. Cerca de una línea aparece el snap perpendicular ⊥. Clic derecho, Esc o doble clic termina.',txt:'Texto: clic donde quieras la nota y escribe el texto en el panel.',supf:'Apoyo fijo: clic en cada nudo que quieras empotrar (Ux, Uy, Uz, Rx, Ry, Rz).',supp:'Apoyo articulado: clic en los nudos; restringe las traslaciones y deja libres los giros.',supr:'Apoyo de rodillo: clic en los nudos; restringe Uz (apoyo vertical).',supn:'Quitar apoyo: clic en los nudos para dejarlos libres.',orb:'Órbita: arrastra con el botón izquierdo alrededor del punto bajo el cursor. Botón central y Alt+arrastrar también orbitan; rueda: zoom.',pan:'Pan: arrastra para desplazar la vista. Rueda: zoom; botón Órbita para girar.'}[t]||'';
  $('hint').textContent=h;cv.style.cursor=t==='orb'?'grab':t==='pan'?'move':'crosshair';draw()}
 function view(a,p,pl){C.a=a;C.p=p;if(pl)$('pl').value=pl;fit();draw()}
-function load(n,b,ms,ls,cs,zs,pt,an,gr){ZV=null;N=n;B=b;MUROS=ms||[];LOSAS=ls||[];CARGAS=cs||[];ZAPATAS=zs||[];PLATEAS=pt||[];ANOT=an||[];GRUPOS=gr||[];SEL=[];rubber=null;moveBase=null;sel=null;fusionarNodos();res=null;chain=null;poly=null;wchain=null;widx=[];dimA=null;aline=null;$('out').innerHTML='';form();mode='model';fit();setM('model')}
+function load(n,b,ms,ls,cs,zs,pt,an,gr){ZV=null;resC=null;N=n;B=b;MUROS=ms||[];LOSAS=ls||[];CARGAS=cs||[];ZAPATAS=zs||[];PLATEAS=pt||[];ANOT=an||[];GRUPOS=gr||[];SEL=[];rubber=null;moveBase=null;sel=null;fusionarNodos();res=null;chain=null;poly=null;wchain=null;widx=[];dimA=null;aline=null;$('out').innerHTML='';form();mode='model';fit();setM('model')}
 
 /* --- Barra de progreso global --- */
 let PROG_T0=0,PROG_TIMER=null;
@@ -2941,7 +3004,7 @@ cv.onpointerdown=e=>{const r=cv.getBoundingClientRect(),px=e.clientX-r.left,py=e
  }
  if(e.button==1||(e.button===0&&e.altKey)){e.preventDefault();const pv=orbitPivotAt(px,py),s=proj(pv[0],pv[1],pv[2]);drag={t:'o',x:px,y:py,a:C.a,p:C.p,pivot:pv,sx:s[0],sy:s[1],mv:0};return}
  if(e.button==2){if(poly){cerrarPoly();return}if(aline){cerrarGuia();return}if(wchain){cerrarMuroPoli();return}if(dimA){dimA=null;draw();return}if(chain!=null){chain=null;draw();return}const pv=orbitPivotAt(px,py),s=proj(pv[0],pv[1],pv[2]);drag={t:'o',x:px,y:py,a:C.a,p:C.p,pivot:pv,sx:s[0],sy:s[1],mv:0};return}
- if(tool=='bar'){const p=snap(px,py);if(!p)return;const ni=nodeAt(p);if(chain!=null){if(ni==chain){chain=null;draw();return}if(!B.some(q=>(q.i==chain&&q.j==ni)||(q.i==ni&&q.j==chain)))B.push(bk(chain,ni));res=null;mode='model'}chain=ni;draw();return}
+ if(tool=='bar'){const p=snap(px,py);if(!p)return;const ni=nodeAt(p);if(chain!=null){if(ni==chain){chain=null;draw();return}if(!B.some(q=>(q.i==chain&&q.j==ni)||(q.i==ni&&q.j==chain)))B.push(bk(chain,ni));res=null;mode='model';chain=null;setT('sel');return}chain=ni;draw();return}
  if(tool=='zap'){const hz=hitZap(px,py);if(hz>=0){sel={t:'z',i:hz};form();draw();return}
   const hn=hitN(px,py);if(hn<0){$('hint').textContent='Zapata: haz clic sobre un nodo de apoyo.';return}
   const k=ZAPATAS.findIndex(q=>q.n==hn);
@@ -2965,7 +3028,7 @@ cv.onpointerdown=e=>{const r=cv.getBoundingClientRect(),px=e.clientX-r.left,py=e
   if(!dimA){dimA=q;draw();return}
   if(Math.hypot(q[0]-dimA[0],q[1]-dimA[1])<1e-9)return;
   ANOT.push({t:'dim',a:dimA.slice(),b:q.slice(),off:.6,txt:''});sel={t:'a',i:ANOT.length-1};dimA=null;form();draw();return}
- if(tool=='lin'){let p0=snap(px,py);if(!p0)return;const z=(SNAP&&(SNAP.type=='end'||SNAP.type=='perp')&&p0[2]!=null)?p0[2]:(+$('lv').value||0)/UF('L');if(!aline)aline=[];if(aline.length){const q=aline[aline.length-1];if(!(SNAP&&(SNAP.type=='end'||SNAP.type=='perp')))p0=constrainPt(q,p0);if(Math.hypot(p0[0]-q[0],p0[1]-q[1])<1e-9){draw();return}}aline.push([p0[0],p0[1],p0[2]!=null?p0[2]:z]);draw();return}
+ if(tool=='lin'){let p0=snap(px,py);if(!p0)return;const z=(SNAP&&(SNAP.type=='end'||SNAP.type=='perp')&&p0[2]!=null)?p0[2]:(+$('lv').value||0)/UF('L');if(!aline)aline=[];if(aline.length){const q=aline[aline.length-1];if(!(SNAP&&(SNAP.type=='end'||SNAP.type=='perp')))p0=constrainPt(q,p0);if(Math.hypot(p0[0]-q[0],p0[1]-q[1])<1e-9){draw();return}}aline.push([p0[0],p0[1],p0[2]!=null?p0[2]:z]);if(aline.length>=2){ANOT.push({t:'line',pts:aline.map(p=>p.slice())});sel={t:'a',i:ANOT.length-1};aline=null;setT('sel');return}draw();return}
  if(tool=='txt'){const p0=snap(px,py);if(!p0)return;const z=(SNAP&&SNAP.type=='end'&&p0[2]!=null)?p0[2]:(+$('lv').value||0)/UF('L');ANOT.push({t:'txt',p:[p0[0],p0[1],z],s:'Texto'});sel={t:'a',i:ANOT.length-1};form();draw();
   const ti=$('aTxt');if(ti){ti.focus();ti.select()}return}
  if(tool=='slb'||tool=='are'||tool=='pla'){const p=snap(px,py);if(!p)return;const lv=(+$('lv').value||0)/UF('L');
@@ -3015,6 +3078,11 @@ $('wt').onchange=()=>{const v=+$('wt').value/UF('s');if(v>0)DEF.wt=v};
 $('wh').onchange=()=>{const v=+$('wh').value/UF('L');if(v>0)DEF.wh=v};
 $('sth').onchange=()=>{const v=+$('sth').value/UF('s');if(v>0)DEF.st=v};
 $('aq').onchange=()=>{const v=+$('aq').value/UF('p');if(isFinite(v))DEF.aq=v};
+function descargarInformeRust(html){
+ try{const blob=new Blob([html],{type:'text/html;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='informe-rust-'+new Date().toISOString().slice(0,10)+'.html';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),3000)}catch(e){if($('stz'))$('stz').textContent='No se pudo descargar el informe: '+e.message}
+}
+function botonInforme(r){return r&&r.reportHtml?'<button id="b_rust_rep" style="width:100%;margin-top:6px">Descargar informe Rust</button>':''}
+function bindInforme(r){const b=$('b_rust_rep');if(b)b.onclick=()=>descargarInformeRust(r.reportHtml)}
 function verDeformadaRust(){
  const r=window.__RUST_RESULT__;if(!r||!r.smp)return;
  res={u:(r.u||[]).slice(0,N.length*6),R:(r.reactions||[]).slice(0,N.length*6),smp:r.smp,dmax:(r.analysis&&r.analysis.dmax)||0,ext:{},wsm:[],muros:[],memb:[]};
@@ -3028,7 +3096,7 @@ async function rustVientoRun(){
  try{
   const wv=(typeof VIENTO!=='undefined'&&VIENTO)||{};
   const wo={viento:true,v:wv.V,exp:wv.exp,kzt:wv.Kzt,kd:wv.Kd,ke:wv.Ke,g:wv.G,cpw:wv.Cpw,cpl:wv.Cpl,gcpi:wv.GCpi,techo:wv.techo};
-  const r=await window.ZAPEL_DESKTOP.solveRust(modelo,wo);
+  wo.report=true;const r=await window.ZAPEL_DESKTOP.solveRust(modelo,wo);
   if(!r||!r.ok){o.innerHTML='<span class="er">Rust viento: '+((r&&r.error)||'sin respuesta')+'</span>';return}
   const w=r.wind||{};
   let h='<b>Viento ASCE 7-22 · Rust</b><div class="m">V = '+fmtEsc(w.V)+' mph · exposición '+w.exposure+' · h = '+fmtEsc(w.h)+' m · qh = '+fmtEsc(w.qh)+' psf</div>';
@@ -3036,8 +3104,90 @@ async function rustVientoRun(){
   if(w.levels&&w.levels.length)h+='<table><tr><th>z</th><th>Kz</th><th>pN</th><th>FX</th></tr>'+w.levels.map(L=>'<tr><td>'+fmtEsc(L.z)+'</td><td>'+fmtEsc(L.kz)+'</td><td>'+fmtEsc(L.pN)+'</td><td>'+fmtEsc(L.FX)+'</td></tr>').join('')+'</table>';
   if(r.cases&&r.cases.length)h+='<table><tr><th>Caso</th><th>Cortante</th><th>dmax</th></tr>'+r.cases.map(c=>'<tr><td>'+c.dir+(c.sign>0?'+':'-')+'</td><td>'+fmtEsc(c.base_shear)+'</td><td>'+fmtEsc(c.dmax)+'</td></tr>').join('')+'</table>';
   if(r.warnings&&r.warnings.length)h+='<div class="m" style="font-size:11px">'+r.warnings.slice(0,8).join('<br>')+'</div>';
-  o.innerHTML=h;if($('stz'))$('stz').textContent='Viento Rust completado.';
+  window.__RUST_RESULT__=r;h+='<button id="b_rust_wcont" style="width:100%;margin-top:6px">Ver presiones de viento Rust</button><button id="b_rust_wdrift" style="width:100%;margin-top:4px">Ver derivas de viento Rust</button>'+botonInforme(r);
+  o.innerHTML=h;bindInforme(r);const wc=$('b_rust_wcont');if(wc)wc.onclick=verContornosVientoRust;const wd=$('b_rust_wdrift');if(wd)wd.onclick=verDerivasVientoRust;if($('stz'))$('stz').textContent='Viento Rust completado.';
  }catch(e){o.innerHTML='<span class="er">Rust viento: '+e.message+'</span>'}
+}
+function validarRustApp(){
+ const o=$('out'),r=window.__RUST_RESULT__;if(!r||!r.u){o.innerHTML='<span class="er">Ejecuta primero Rust β estático.</span>';return}
+ let js;try{js=analyze()}catch(e){o.innerHTML='<span class="er">La app no pudo analizar este modelo: '+e.message+'</span>';return}
+ if(js.err){o.innerHTML='<span class="er">App: '+js.err+'</span>';return}
+ const n=N.length*6,ru=r.u,ju=js.u;
+ let du=0,dr=0;for(let i=0;i<Math.min(n,ru.length,ju.length);i++)du=Math.max(du,Math.abs(ru[i]-ju[i]));
+ const rr=r.reactions||[],jr=js.R||[];for(let i=0;i<Math.min(n,rr.length,jr.length);i++)dr=Math.max(dr,Math.abs(rr[i]-jr[i]));
+ const rd=(r.analysis&&r.analysis.dmax)||0,jd=js.dmax||0;
+ const rel=(v,b)=>b>1e-12?Math.abs(v-b)/b:Math.abs(v);
+ o.innerHTML='<b>Validación Rust vs app</b><table><tr><th></th><th>App</th><th>Rust</th><th>Δ máx</th><th>rel.</th></tr>'+
+  '<tr><td>dmax</td><td>'+fmtEsc(jd)+'</td><td>'+fmtEsc(rd)+'</td><td>'+fmtEsc(Math.abs(rd-jd))+'</td><td>'+fmtEsc(rel(rd,jd))+'</td></tr>'+
+  '<tr><td>Desplazamiento</td><td colspan=4>Δ máx = '+fmtEsc(du)+'</td></tr>'+
+  '<tr><td>Reacciones</td><td colspan=4>Δ máx = '+fmtEsc(dr)+'</td></tr></table>'+
+  '<div class="m">Comparación estática nodal. Los análisis modal, sísmico, ELF y viento requieren sus propios controles.</div>';
+}
+function verContornosLosasRust(){
+ const r=window.__RUST_RESULT__;if(!r||!r.slab_stress)return;
+ resC={slabs:r.slab_stress,label:'Tensión de losas'};draw();
+}
+function verContornoTensionMurosRust(){
+ const r=window.__RUST_RESULT__;if(!r||!r.wall_stress)return;
+ resC={wall:r.wall_stress,label:'Tensión de muros'};draw();
+}
+function verContornosMatresRust(){
+ const r=window.__RUST_RESULT__;if(!r||!r.mats||!r.mats.length)return;
+ resC={mats:r.mats,label:'Presión de matres'};draw();
+}
+function verContornosSismoRust(){
+ const r=window.__RUST_RESULT__;if(!r||!r.directions)return;
+ const nx=(r.directions.X&&r.directions.X.u)||[],ny=(r.directions.Y&&r.directions.Y.u)||[];
+ const vals=[];
+ for(let i=0;i<N.length;i++){
+  const a=nx[6*i],b=nx[6*i+1],c=nx[6*i+2],d=ny[6*i],e=ny[6*i+1],f=ny[6*i+2];
+  vals.push(Math.max(Math.hypot(a||0,b||0,c||0),Math.hypot(d||0,e||0,f||0)));
+ }
+ resC={disp:vals};draw();
+}
+function verDerivasSismoRust(){
+ const r=window.__RUST_RESULT__;if(!r||!r.directions)return;
+ const dx=(r.directions.X&&r.directions.X.drifts)||[],dy=(r.directions.Y&&r.directions.Y.drifts)||[];
+ const vals=N.map(n=>{
+  let best=0;
+  for(let k=0;k<Math.max(dx.length,dy.length);k++){
+   // asignacion simple por cota relativa; se muestra la mayor deriva de la direccion
+   const v=Math.max(dx[k]||0,dy[k]||0);if(v>best)best=v;
+  }
+  return best;
+ });
+ resC={disp:vals,label:'Deriva sísmica'};draw();
+}
+function verDerivasVientoRust(){
+ const r=window.__RUST_RESULT__;if(!r||!r.envelope_drifts)return;
+ const dv=r.envelope_drifts||[];
+ const vals=N.map((n,i)=>{const k=Math.min(Math.max(0,i%dv.length),Math.max(0,dv.length-1));return dv.length?dv[k]:0});
+ resC={disp:vals,label:'Deriva de viento'};draw();
+}
+function verContornosVientoRust(){
+ const r=window.__RUST_RESULT__;if(!r||!r.wind||!r.wind.levels)return;
+ const lv=r.wind.levels.slice().sort((a,b)=>a.z-b.z);
+ const vals=N.map(n=>{let best=lv[0];for(const L of lv)if(Math.abs(L.z-n.z)<Math.abs(best.z-n.z))best=L;return best.pN||0});
+ resC={disp:vals};draw();
+}
+async function rustElfRun(){
+ const o=$('out');if(!o)return;
+ if(!(window.ZAPEL_DESKTOP&&window.ZAPEL_DESKTOP.solveRust)){o.innerHTML='<span class="er">El análisis Rust solo está disponible en la versión de escritorio.</span>';return}
+ const modelo={app:'zapel-3d',v:5,units:cu,N,B,MUROS,LOSAS,CARGAS,ZAPATAS,PLATEAS,ANOT,GRUPOS};
+ o.innerHTML='<span class="m">Calculando ELF con Rust…</span>';
+ try{
+  const p={...DEFSIS,...(SISMO||{})},Si=SITIO[p.clase]||SITIO.D,{Fa,Fv}=coefSitio(p,Si);
+  const SDS=2*Fa*p.ss/3,SD1=2*Fv*p.s1/3,sis=SISTEMAS[+p.sis]||SISTEMAS[3];
+  const R=sis[1]||8,Ie=[1,1,1.25,1.5][+p.riesgo]||1;
+  const r=await window.ZAPEL_DESKTOP.solveRust(modelo,{elf:true,sds:SDS,sd1:SD1,tl:+p.TL||8,r:R,ie:Ie,ct:sis[4]||.0466,x:sis[5]||.9,ecc:Math.max(5,+p.ecc||5),report:true});
+  if(!r||!r.ok){o.innerHTML='<span class="er">Rust ELF: '+((r&&r.error)||'sin respuesta')+'</span>';return}
+  const e=r.elf||{};
+  let h='<b>ELF · Rust</b><div class="m">'+(e.method||'')+'</div>';
+  h+='<table><tr><th>T</th><td>'+fmtEsc(e.T)+' s</td></tr><tr><th>Ta</th><td>'+fmtEsc(e.Ta)+' s</td></tr><tr><th>Cs</th><td>'+fmtEsc(e.Cs)+'</td></tr><tr><th>V</th><td>'+fmtEsc(e.V)+'</td></tr><tr><th>W</th><td>'+fmtEsc(e.W)+'</td></tr></table>';
+  if(e.levels&&e.levels.length)h+='<table><tr><th>Nivel</th><th>w</th><th>F</th><th>V</th></tr>'+e.levels.map((L,i)=>'<tr><td>'+(i+1)+'</td><td>'+fmtEsc(L.w)+'</td><td>'+fmtEsc((e.forces||[])[i])+'</td><td>'+fmtEsc((e.table||[])[i]?e.table[i].V:'')+'</td></tr>').join('')+'</table>';
+  if(e.table&&e.table.length)h+='<table><tr><th>Entrepiso</th><th>dr</th><th>da</th><th>θ</th></tr>'+e.table.map(t=>'<tr><td>'+fmtEsc(t.z)+'</td><td>'+fmtEsc(t.dr)+'</td><td>'+fmtEsc(t.da)+'</td><td>'+fmtEsc(t.theta)+'</td></tr>').join('')+'</table>';
+  h+=botonInforme(r);o.innerHTML=h;bindInforme(r);if($('stz'))$('stz').textContent='ELF Rust completado.';
+ }catch(e){o.innerHTML='<span class="er">Rust ELF: '+e.message+'</span>'}
 }
 async function rustSismoRun(){
  const o=$('out');if(!o)return;
@@ -3051,16 +3201,18 @@ async function rustSismoRun(){
    const p={...DEFSIS,...(SISMO||{})},Si=SITIO[p.clase]||SITIO.D,{Fa,Fv}=coefSitio(p,Si);
    const SDS=2*Fa*p.ss/3,SD1=2*Fv*p.s1/3;
    const sis=SISTEMAS[+p.sis]||SISTEMAS[3],R=sis[1]||8,Ie=[1,1,1.25,1.5][+p.riesgo]||1;
-   so={sismo:true,modes:nmo,sds:SDS,sd1:SD1,tl:+p.TL||8,r:R,ie:Ie,fA:+p.fA||.25};
+   so={sismo:true,modes:nmo,sds:SDS,sd1:SD1,tl:+p.TL||8,r:R,ie:Ie,fA:+p.fA||.25,ecc:Math.max(5,+p.ecc||5)};
+   if(p.met=='rec'&&typeof escSel==='function'){const es=escSel();if(es&&es.r&&es.r.T){so.eventT=es.r.T;so.eventSa=es.r.Sa;so.eventScale=es.scale}}
   }catch(_){}
-  const r=await window.ZAPEL_DESKTOP.solveRust(modelo,so);
+  so.report=true;const r=await window.ZAPEL_DESKTOP.solveRust(modelo,so);
   if(!r||!r.ok){o.innerHTML='<span class="er">Rust sísmico: '+((r&&r.error)||'sin respuesta')+'</span>';return}
   let h='<b>Sismo modal espectral · Rust</b><div class="m">'+(r.solver||'')+'</div>';
   if(r.spectrum)h+='<table><tr><th>SDS</th><td>'+fmtEsc(r.spectrum.sds)+'</td></tr><tr><th>SD1</th><td>'+fmtEsc(r.spectrum.sd1)+'</td></tr><tr><th>T0</th><td>'+fmtEsc(r.spectrum.t0)+' s</td></tr><tr><th>Ts</th><td>'+fmtEsc(r.spectrum.ts)+' s</td></tr></table>';
   if(r.analysis)h+='<table><tr><th>GDL</th><td>'+(r.analysis.dof||'')+'</td></tr><tr><th>Modos</th><td>'+(r.analysis.modes||'')+'</td></tr><tr><th>Peso</th><td>'+fmtEsc(r.analysis.total_weight)+'</td></tr></table>';
   if(r.directions){h+='<table><tr><th>Dir</th><th>Cortante</th><th>dmax</th></tr>'+['X','Y'].map(d=>'<tr><td>'+d+'</td><td>'+fmtEsc(r.directions[d].base_shear)+'</td><td>'+fmtEsc(r.directions[d].dmax)+'</td></tr>').join('')+'</table>'}
   if(r.warnings&&r.warnings.length)h+='<div class="m" style="font-size:11px">'+r.warnings.slice(0,8).join('<br>')+'</div>';
-  o.innerHTML=h;if($('stz'))$('stz').textContent='Sismo modal Rust completado.';
+  if(r.directions){window.__RUST_RESULT__=r;h+='<button id="b_rust_scont" style="width:100%;margin-top:6px">Ver contornos sísmicos Rust</button><button id="b_rust_sdrift" style="width:100%;margin-top:4px">Ver derivas sísmicas Rust</button>'}
+  h+=botonInforme(r);o.innerHTML=h;bindInforme(r);const sc=$('b_rust_scont');if(sc)sc.onclick=verContornosSismoRust;const sd=$('b_rust_sdrift');if(sd)sd.onclick=verDerivasSismoRust;if($('stz'))$('stz').textContent='Sismo modal Rust completado.';
  }catch(e){o.innerHTML='<span class="er">Rust sísmico: '+e.message+'</span>'}
 }
 async function rustRun(){
@@ -3069,7 +3221,7 @@ async function rustRun(){
  const modelo={app:'zapel-3d',v:5,units:cu,N,B,MUROS,LOSAS,CARGAS,ZAPATAS,PLATEAS,ANOT,GRUPOS};
  o.innerHTML='<span class="m">Ejecutando solver Rust…</span>';
  try{
-  const r=await window.ZAPEL_DESKTOP.solveRust(modelo);
+  const r=await window.ZAPEL_DESKTOP.solveRust(modelo,{report:true});
   if(!r||!r.ok){o.innerHTML='<span class="er">Rust: '+((r&&r.error)||'sin respuesta')+'</span>';return}
   let h='<b>Análisis Rust (beta)</b><div class="m">'+(r.solver||'')+'</div>';
   if(r.analysis){h+='<table><tr><th>Nudos</th><td>'+(r.analysis.nodes_total||r.analysis.dof/6||'')+'</td></tr><tr><th>GDL</th><td>'+(r.analysis.dof||'')+'</td></tr><tr><th>Elementos</th><td>'+(r.analysis.elements||'')+'</td></tr><tr><th>No-cero</th><td>'+(r.analysis.nnz||'')+'</td></tr>'+(r.analysis.dmax!=null?'<tr><th>dmax</th><td>'+fmtEsc(r.analysis.dmax)+'</td></tr>':'')+(r.analysis.total_weight!=null?'<tr><th>Peso</th><td>'+fmtEsc(r.analysis.total_weight)+'</td></tr>':'')+'</table>'}
@@ -3077,20 +3229,33 @@ async function rustRun(){
   if(r.directions){h+='<b>Sismo</b><table><tr><th>Dir</th><th>Cortante</th><th>dmax</th></tr>'+['X','Y'].map(d=>'<tr><td>'+d+'</td><td>'+fmtEsc(r.directions[d].base_shear)+'</td><td>'+fmtEsc(r.directions[d].dmax)+'</td></tr>').join('')+'</table>'}
   if(r.warnings&&r.warnings.length)h+='<div class="m" style="font-size:11px">'+r.warnings.slice(0,8).join('<br>')+'</div>';
   if(r.smp&&r.smp.length){window.__RUST_RESULT__=r;h+='<button id="b_rust_def" style="width:100%;margin-top:6px">Ver deformada Rust</button>'}
+  if(r.u){window.__RUST_RESULT__=r;h+='<button id="b_rust_valid" style="width:100%;margin-top:4px">Validar Rust vs app</button>'}
+  if(r.contours){window.__RUST_RESULT__=r;h+='<button id="b_rust_cont" style="width:100%;margin-top:4px">Ver contornos Rust</button>'}
+  if(r.mats&&r.mats.length){window.__RUST_RESULT__=r;h+='<button id="b_rust_matc" style="width:100%;margin-top:4px">Ver presión de matres Rust</button>'}
+  if(r.wall_stress&&r.wall_stress.length){window.__RUST_RESULT__=r;h+='<button id="b_rust_wallc" style="width:100%;margin-top:4px">Ver tensión de muros Rust</button>'}
+  if(r.slab_stress&&r.slab_stress.length){window.__RUST_RESULT__=r;h+='<button id="b_rust_slabc" style="width:100%;margin-top:4px">Ver tensión de losas Rust</button>'}
+  h+=botonInforme(r);
   o.innerHTML=h;
+  bindInforme(r);
   const bd=$('b_rust_def');if(bd)bd.onclick=verDeformadaRust;
+  const bval=$('b_rust_valid');if(bval)bval.onclick=validarRustApp;
+  const bc=$('b_rust_cont');if(bc)bc.onclick=()=>{resC=window.__RUST_RESULT__?window.__RUST_RESULT__.contours:null;draw()};
+  const bm=$('b_rust_matc');if(bm)bm.onclick=verContornosMatresRust;
+  const bw=$('b_rust_wallc');if(bw)bw.onclick=verContornoTensionMurosRust;
+  const bsl=$('b_rust_slabc');if(bsl)bsl.onclick=verContornosLosasRust;
   if($('stz'))$('stz').textContent='Análisis Rust completado.';
  }catch(e){o.innerHTML='<span class="er">Rust: '+e.message+'</span>'}
 }
-if(window.ZAPEL_DESKTOP&&window.ZAPEL_DESKTOP.isDesktop){const br=$('b_rust');if(br){br.style.display='inline-block';br.onclick=rustRun}const bs=$('b_rust_sismo');if(bs){bs.style.display='inline-block';bs.onclick=rustSismoRun}const bv=$('b_rust_viento');if(bv){bv.style.display='inline-block';bv.onclick=rustVientoRun}}
+if(window.ZAPEL_DESKTOP&&window.ZAPEL_DESKTOP.isDesktop){const br=$('b_rust');if(br){br.style.display='inline-block';br.onclick=rustRun}const bs=$('b_rust_sismo');if(bs){bs.style.display='inline-block';bs.onclick=rustSismoRun}const be=$('b_rust_elf');if(be){be.style.display='inline-block';be.onclick=rustElfRun}const bv=$('b_rust_viento');if(bv){bv.style.display='inline-block';bv.onclick=rustVientoRun}}
 if(cv)cv.title='Órbita: botón central o Alt + arrastrar · Zoom: rueda · Desplazar: Shift + arrastrar';function toggleBarra(){
  const tb=$('side'),b=$('b_tbcol'),col=!tb.classList.contains('colapsada');
- tb.classList.toggle('colapsada',col);b.textContent='☰';
+ tb.classList.toggle('colapsada',col);b.textContent=col?'›':'‹';
  b.title=col?'Mostrar barra de herramientas':'Ocultar barra de herramientas';
  try{localStorage.setItem('zapel-toolbar-collapsed',col?'1':'0')}catch(e){}
  draw();
 }
-if($('b_tbcol'))$('b_tbcol').onclick=toggleBarra;if($('lvlVis'))$('lvlVis').onchange=()=>{ZV=$('lvlVis').value?+$('lvlVis').value:null;draw()};
+if($('b_tbcol'))$('b_tbcol').onclick=toggleBarra;
+[['r_toggle',null],['r_run','b_run'],['r_rep','b_rep'],['r_rep3','b_rep3'],['r_sismo','b_sismo'],['r_viento','b_viento'],['r_guide','b_guide'],['r_help','b_help']].forEach(([r,b])=>{const rb=$(r),bb=$(b);if(rb&&bb)rb.onclick=()=>bb.click();if(r==='r_toggle')rb.onclick=toggleBarra});if($('lvlVis'))$('lvlVis').onchange=()=>{ZV=$('lvlVis').value?+$('lvlVis').value:null;draw()};
 try{if(localStorage.getItem('zapel-toolbar-collapsed')==='1'){$('side').classList.add('colapsada');$('b_tbcol').title='Mostrar barra de herramientas'}}catch(e){}
 function togglePanel(){
  const pn=$('pn'),b=$('b_pncol'),col=!pn.classList.contains('colapsada');
