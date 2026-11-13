@@ -524,6 +524,7 @@ function wallGeo(w){
 /* Etiqueta del muro: los tramos de un muro poligonal comparten número de grupo */
 const wallTag=i=>{const w=MUROS[i];return w&&w.grp?('M'+w.grp+'.'+(w.gk+1)):'M'+(i+1)};
 
+function barSW(r){if(!SW_ON||!r)return 0;try{const s=sp(r);return (GAM[r.mat]||24)*(s.A||0)}catch(e){return 0}}
 /* Reúne el reparto de losas y cargas de área: add = total, area = sólo cargas de área */
 function cargasSup(){
  const add=new Float64Array(B.length),area=new Float64Array(B.length),avisos=[];let losas=0,areas=0;
@@ -574,11 +575,11 @@ function analyze(keepK){
  if(n>MAX_DOF)return{err:'Modelo demasiado grande para el solver denso'+(DESKTOP_MODE?'':' del navegador')+': '+nd.length+' nudos ('+n+' GDL). Reduce subdivisiones (div), simplifica losas/muros o divide el modelo en partes.'};
  if(n>WARN_DOF)avisos.push('Modelo grande ('+nd.length+' nudos, '+n+' GDL): el análisis puede tardar y consumir bastante memoria.');
  const G=Array.from({length:n},()=>Array(n).fill(0)),F=Array(n).fill(0);
- E.forEach(e=>{const r=e.M.r,{ax,L}=e,sc=r._sec||sp(r),Em=r.E*1e6,ad=e.M.bi>=0?addB[e.M.bi]:0,
+ E.forEach(e=>{const r=e.M.r,{ax,L}=e,sc=r._sec||sp(r),Em=r.E*1e6,ad=e.M.bi>=0?addB[e.M.bi]:0,qsw=e.M.bi>=0?barSW(r):0,
   K=kl(Em,Em/2.4,sc.A,sc.I,sc.Iz,sc.J,L),kz=(r.kz||0)*sc.w,ky=(r.ky||0)*sc.d,Rm=[ax.ex,ax.ey,ax.ez],T=Array.from({length:12},()=>Array(12).fill(0));
   if(kz||ky)GP.forEach(([x,w])=>{const h=hm(x,L),nz=[h[0],-h[1],h[2],-h[3]],iy=[1,5,7,11],iz=[2,4,8,10];for(let a=0;a<4;a++)for(let b=0;b<4;b++){K[iy[a]][iy[b]]+=ky*L*w*h[a]*h[b];K[iz[a]][iz[b]]+=kz*L*w*nz[a]*nz[b]}});
   for(let b=0;b<4;b++)for(let i=0;i<3;i++)for(let j=0;j<3;j++)T[3*b+i][3*b+j]=Rm[i][j];
-  const t0=(e.k-1)/e.m,t1=e.k/e.m,ip=(a,b,s)=>a+(b-a)*s,fa=[ip(r.xa,r.xb,t0),ip(r.ya,r.yb,t0),-ip(r.wa,r.wb,t0)-ad],fb=[ip(r.xa,r.xb,t1),ip(r.ya,r.yb,t1),-ip(r.wa,r.wb,t1)-ad],qxa=dot(fa,ax.ex),qxb=dot(fb,ax.ex),qya=dot(fa,ax.ey)+ip(r.pya,r.pyb,t0),qyb=dot(fb,ax.ey)+ip(r.pya,r.pyb,t1),qza=dot(fa,ax.ez)-ip(r.pza,r.pzb,t0),qzb=dot(fb,ax.ez)-ip(r.pza,r.pzb,t1);wF+=(fa[2]+fb[2])/2*L;wH[0]+=(fa[0]+fb[0])/2*L;wH[1]+=(fa[1]+fb[1])/2*L;const gy=(ip(r.pya,r.pyb,t0)+ip(r.pya,r.pyb,t1))/2,gz=-(ip(r.pza,r.pzb,t0)+ip(r.pza,r.pzb,t1))/2;wH[0]+=(gy*ax.ey[0]+gz*ax.ez[0])*L;wH[1]+=(gy*ax.ey[1]+gz*ax.ez[1])*L;wF+=(gy*ax.ey[2]+gz*ax.ez[2])*L;
+  const t0=(e.k-1)/e.m,t1=e.k/e.m,ip=(a,b,s)=>a+(b-a)*s,fa=[ip(r.xa,r.xb,t0),ip(r.ya,r.yb,t0),-ip((r.wa||0)+qsw,(r.wb||0)+qsw,t0)-ad],fb=[ip(r.xa,r.xb,t1),ip(r.ya,r.yb,t1),-ip((r.wa||0)+qsw,(r.wb||0)+qsw,t1)-ad],qxa=dot(fa,ax.ex),qxb=dot(fb,ax.ex),qya=dot(fa,ax.ey)+ip(r.pya,r.pyb,t0),qyb=dot(fb,ax.ey)+ip(r.pya,r.pyb,t1),qza=dot(fa,ax.ez)-ip(r.pza,r.pzb,t0),qzb=dot(fb,ax.ez)-ip(r.pza,r.pzb,t1);wF+=(fa[2]+fb[2])/2*L;wH[0]+=(fa[0]+fb[0])/2*L;wH[1]+=(fa[1]+fb[1])/2*L;const gy=(ip(r.pya,r.pyb,t0)+ip(r.pya,r.pyb,t1))/2,gz=-(ip(r.pza,r.pzb,t0)+ip(r.pza,r.pzb,t1))/2;wH[0]+=(gy*ax.ey[0]+gz*ax.ez[0])*L;wH[1]+=(gy*ax.ey[1]+gz*ax.ez[1])*L;wF+=(gy*ax.ey[2]+gz*ax.ez[2])*L;
   const tf=(qa,qb)=>[qa*L/2+3*(qb-qa)*L/20,qa*L*L/12+(qb-qa)*L*L/30,qa*L/2+7*(qb-qa)*L/20,-qa*L*L/12-(qb-qa)*L*L/20],Y=tf(qya,qyb),Z=tf(qza,qzb),fe=[L*(2*qxa+qxb)/6,Y[0],Z[0],0,-Z[1],Y[1],L*(qxa+2*qxb)/6,Y[2],Z[2],0,-Z[3],Y[3]],rel=[];
   if(e.k==1&&r.a1)rel.push(4,5);if(e.k==e.m&&r.a2)rel.push(10,11);
   const Kc=K.map(x=>x.slice()),fc=fe.slice();cond(Kc,fc,rel);
@@ -854,7 +855,7 @@ function pesoNodos(fA){
  const W=new Float64Array(N.length),CS=cargasSup();
  B.forEach((b,i)=>{const a=N[b.i],c=N[b.j];if(!a||!c)return;
   const L=Math.hypot(c.x-a.x,c.y-a.y,c.z-a.z);
-  const w=((+b.wa||0)+(+b.wb||0))/2+(CS.add[i]-CS.area[i])+fA*CS.area[i];
+  const w=((+b.wa||0)+(+b.wb||0))/2+barSW(b)+(CS.add[i]-CS.area[i])+fA*CS.area[i];
   W[b.i]+=w*L/2;W[b.j]+=w*L/2});
  N.forEach((n,i)=>{if(n.f[2]<0)W[i]+=-n.f[2]});
  MUROS.forEach(w=>{if(!SW_ON||!w.rig)return;const wg=wallGeo(w);if(!wg)return;
