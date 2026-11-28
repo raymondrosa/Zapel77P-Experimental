@@ -3699,7 +3699,8 @@ Techo inclinado: "roof":{"type":"shed"|"gable","rise":4,"dir":"x"|"y"} eleva los
 Alternativa para plantas poligonales regulares (octágono, hexágono, pentágono...): usa "shape":"polygon" en lugar de xs/ys:
 {"shape":"polygon","units":"IM","sides":8,"side":10,"stories":[10,10,10],"columns":{"b":18,"h":18},"center":true,"spokes":true,"ring":false,"beams":{"b":12,"h":24},"slab":{"t":6,"q":60},"fc":4,"base":"fixed","walls":{"t":8},"notes":"..."}
 "side" = longitud de cada lado (o "radius" = distancia del centro a cada vértice) en ft o m. Hay una columna en cada vértice y, si "center":true, una en el centro. "spokes":true = vigas del centro a cada vértice en cada nivel; "ring":true = vigas perimetrales entre vértices. "walls":{"t":8} = muros en todos los lados (opcional "sides":[0,1,...] para solo algunos y "s0","s1" para entrepisos); omite "walls" si no hay muros.
-Si la estructura pedida no cabe en ninguno de los dos esquemas (geometría irregular, curvas, etc.), responde SOLO {"error":"qué no se puede representar"}; nunca la aproximes con otra forma.
+Solo si lo pedido es una geometría irregular o curva que de verdad no cabe en ninguno de los dos esquemas, responde SOLO un JSON con la clave "error" y una frase con el motivo concreto (nunca copies esta instrucción); nunca la aproximes con otra forma. NO uses "error" para pedidos de agregar o cambiar vigas, columnas, muros, losas, techos, niveles, secciones o cargas: casi todo se resuelve editando la especificación.
+Vigas intermedias en malla rectangular: "secondary":[{"dir":"x"|"y","n":1,"b":8,"h":16,"s0":3,"s1":3}] agrega n vigas equiespaciadas dentro de cada vano; "dir":"x" = vigas paralelas a X (dividen los vanos en Y), "dir":"y" = paralelas a Y. Por omisión solo en el último nivel (el techo); usa s0/s1 para otros niveles. En plantas poligonales: "inner":[{"fracs":[0.5],"b":10,"h":20,"s0":3,"s1":3}] crea anillos de vigas a esa fracción del radio (entre 0 y 1) que unen los puntos intermedios de las vigas radiales; por omisión solo en el techo.
 Edición: si recibes una «Especificación actual» y un «Pedido», devuelve la especificación COMPLETA con solo los cambios pedidos (conserva todo lo demás, incluido "shape", muros y cargas) y describe en "notes", en una frase, qué cambiaste. Si agregas o quitas niveles, ajusta también los índices s0/s1 de muros y rangos.
 Reglas: si el usuario no da unidades usa "IM". Si faltan datos, supón valores típicos (columnas 18 in, vigas 14x24 in, losa 6 in, q 50 psf, fc 4 ksi, base fixed) y dilo en "notes".
 Unidades y tipos (muy importante): con units="SI" usa xs/ys/stories en METROS (6, 3.2), columns y beams en MILÍMETROS (450, 300x600), slab.t en MILÍMETROS (150), slab.q en kPa (2.4) y fc en MPa (28). Con units="IM" usa xs/ys/stories en PIES (20, 12), columns y beams en PULGADAS (18, 14x24), slab.t en PULGADAS (6), slab.q en psf (50) y fc en ksi (4). "base" debe ser exactamente "fixed" o "pinned". "walls" debe ser una lista JSON (puede ser []), y "slab.t" y "slab.q" deben ser números (no null, no objetos).
@@ -3744,7 +3745,10 @@ function iaRoof(r,c,g){
 
 function iaClean(s){
  if(!s||typeof s!=='object'||Array.isArray(s))throw new Error('La especificación debe ser un objeto JSON.');
- if(typeof s.error==='string'&&s.error)throw new Error('La IA indicó que no puede representar esa estructura: '+s.error.slice(0,300));
+ if(typeof s.error==='string'&&s.error){
+  const e=s.error.trim();
+  if(e.length<14||/^qué no se puede representar/i.test(e)||/^(motivo|explicaci)/i.test(e))throw new Error('La IA respondió que no puede hacerlo, pero sin explicar por qué (los modelos gratuitos a veces fallan así). Reformula el pedido con otras palabras o prueba otro modelo.');
+  throw new Error('La IA indicó que no puede representar esa estructura: '+e.slice(0,300))}
  if(s.shape==='polygon')return iaPoly(s);
  const c=iaCtx(s),{u,IM,num,Lm,sec,secO,fc,E,av}=c;
  const arr=(a,max)=>Array.isArray(a)?a.slice(0,max).map(v=>+v).filter(v=>isFinite(v)&&v>0):[];
@@ -3753,21 +3757,36 @@ function iaClean(s){
  if(!st.length)throw new Error('Falta «stories» (alturas de entrepiso).');
  const X=[0],Y=[0],Z=[0];xs.forEach(v=>X.push(X[X.length-1]+Lm(v)));ys.forEach(v=>Y.push(Y[Y.length-1]+Lm(v)));st.forEach(v=>Z.push(Z[Z.length-1]+Lm(v)));
  const nx=X.length,ny=Y.length,nz=Z.length,pl=ny==1;
- if(nx*ny*nz>3000)throw new Error('El modelo tiene demasiados nodos ('+nx*ny*nz+'). Máximo 3000.');
  const colL=iaLev(s.columns,nz).map(o=>secO(o,IM?18:450,IM?18:450)),bmL=iaLev(s.beams,nz).map(o=>secO(o,IM?14:350,IM?24:600));
  const rf=iaRoof(s.roof,c,{x0:0,x1:X[nx-1],y0:0,y1:Y[ny-1],gx:X,gy:Y,planar:pl,poly:false});
  const zt=(k,x,y)=>Z[k]+(rf&&k==nz-1?rf.f(x,y):0);
- const id=(i,j,k)=>k*nx*ny+j*nx+i,Zr=[0,0,0,0,0,0],pin=s.base=='pinned',n=[];
- for(let k=0;k<nz;k++)for(let j=0;j<ny;j++)for(let i=0;i<nx;i++){
+ /* vigas intermedias (secundarias) */
+ const sp2=[];
+ (Array.isArray(s.secondary)?s.secondary:(s.secondary&&typeof s.secondary=='object'?[s.secondary]:[])).slice(0,10).forEach((o,q)=>{
+  if(!o||(o.dir!=='x'&&o.dir!=='y')){av.push('Viga intermedia '+(q+1)+' ignorada (dir debe ser "x" o "y").');return}
+  if(pl){av.push('Pórtico plano: no se generan vigas intermedias.');return}
+  const a=Math.max(1,Math.round(num(o.s0,nz-1,1,nz-1))),b=Math.min(nz-1,Math.round(num(o.s1,nz-1,1,nz-1)));
+  sp2.push({dir:o.dir,n:Math.round(num(o.n,1,1,6)),s0:Math.min(a,b),s1:Math.max(a,b),sec:secO(o,IM?8:200,IM?16:400)})});
+ const L=[];
+ for(let k=0;k<nz;k++){
+  const lx=X.map(v=>({v,sec:null})),ly=Y.map(v=>({v,sec:null}));
+  if(k>=1)sp2.forEach(o=>{if(k<o.s0||k>o.s1)return;const base=o.dir=='x'?Y:X,tg=o.dir=='x'?ly:lx;
+   for(let a=0;a<base.length-1;a++)for(let m=1;m<=o.n;m++){const v=base[a]+(base[a+1]-base[a])*m/(o.n+1);if(!tg.some(q=>Math.abs(q.v-v)<1e-6))tg.push({v,sec:o.sec})}});
+  lx.sort((a,b)=>a.v-b.v);ly.sort((a,b)=>a.v-b.v);L.push({lx,ly})}
+ let tot=0;L.forEach(l=>tot+=l.lx.length*l.ly.length);
+ if(tot>3000)throw new Error('El modelo tiene demasiados nudos ('+tot+'). Máximo 3000.');
+ const Zr=[0,0,0,0,0,0],pin=s.base=='pinned',n=[],mp=new Map(),kk=(k,x,y)=>k+'|'+Math.round(x*1e5)+'|'+Math.round(y*1e5),nid=(k,x,y)=>mp.get(kk(k,x,y));
+ for(let k=0;k<nz;k++)for(const j of L[k].ly)for(const i of L[k].lx){
   let r;
   if(k==0)r=pin?(pl?[1,1,1,0,1,1]:[1,1,1,0,0,0]):[1,1,1,1,1,1];
   else r=pl?[0,1,0,1,0,1]:Zr.slice();
-  n.push({x:X[i],y:Y[j],z:+zt(k,X[i],Y[j]).toFixed(6),r,f:Zr.slice()})}
+  mp.set(kk(k,i.v,j.v),n.length);n.push({x:+i.v.toFixed(6),y:+j.v.toFixed(6),z:+zt(k,i.v,j.v).toFixed(6),r,f:Zr.slice()})}
  const b=[],bar=(i,j,o)=>b.push({i,j,b:o.b,h:o.h,fc,E});
- for(let k=0;k<nz-1;k++)for(let j=0;j<ny;j++)for(let i=0;i<nx;i++)bar(id(i,j,k),id(i,j,k+1),colL[k+1]);
+ for(let k=0;k<nz-1;k++)for(const y of Y)for(const x of X)bar(nid(k,x,y),nid(k+1,x,y),colL[k+1]);
  for(let k=1;k<nz;k++){
-  for(let j=0;j<ny;j++)for(let i=0;i<nx-1;i++)bar(id(i,j,k),id(i+1,j,k),bmL[k]);
-  if(!pl)for(let i=0;i<nx;i++)for(let j=0;j<ny-1;j++)bar(id(i,j,k),id(i,j+1,k),bmL[k])}
+  const {lx,ly}=L[k];
+  ly.forEach(j=>{for(let a=0;a<lx.length-1;a++)bar(nid(k,lx[a].v,j.v),nid(k,lx[a+1].v,j.v),j.sec||bmL[k])});
+  if(!pl)lx.forEach(i=>{for(let a=0;a<ly.length-1;a++)bar(nid(k,i.v,ly[a].v),nid(k,i.v,ly[a+1].v),i.sec||bmL[k])})}
  const mw=[],wl=Array.isArray(s.walls)?s.walls.slice(0,60):[];
  wl.forEach((w,q)=>{
   if(!w||(w.dir!='x'&&w.dir!='y')){av.push('Muro '+(q+1)+' ignorado (dir debe ser "x" o "y").');return}
@@ -3778,25 +3797,26 @@ function iaClean(s){
   let s0=Math.round(num(w.s0,1,1,nz-1)),s1=Math.round(num(w.s1,nz-1,1,nz-1));if(s0>s1)[s0,s1]=[s1,s0];
   const t=sec(num(w.t,IM?8:200,IM?2:50,IM?48:1200));
   for(let k=s0;k<=s1;k++)for(let m=f;m<t2;m++){
-   const P=(a,kk)=>dx?id(m+a,at,kk):id(at,m+a,kk);
+   const P=(a,lv)=>dx?nid(lv,X[m+a],Y[at]):nid(lv,X[at],Y[m+a]);
    mw.push({n:[P(0,k-1),P(1,k-1),P(1,k),P(0,k)],t,mat:'H',fc,E,gw:24,rig:1,fix:k==1?1:0})}});
  const ls=[],cs=[];
  if(s.slab&&typeof s.slab=='object'&&!pl){
   const slL=iaLev(s.slab,nz);
   for(let k=1;k<nz;k++){
-   const o=slL[k],t=sec(num(o.t,IM?6:150,IM?2:50,IM?36:900)),q=num(o.q,IM?50:2.4,0,IM?1000:50)*(IM?0.04788:1);
-   for(let j=0;j<ny-1;j++)for(let i=0;i<nx-1;i++){
-    const pts=[[X[i],Y[j]],[X[i+1],Y[j]],[X[i+1],Y[j+1]],[X[i],Y[j+1]]],zs=(rf&&k==nz-1)?pts.map(p=>+zt(k,p[0],p[1]).toFixed(6)):null;
+   const o=slL[k],t=sec(num(o.t,IM?6:150,IM?2:50,IM?36:900)),q=num(o.q,IM?50:2.4,0,IM?1000:50)*(IM?0.04788:1),{lx,ly}=L[k];
+   for(let jb=0;jb<ly.length-1;jb++)for(let ia=0;ia<lx.length-1;ia++){
+    const x0=lx[ia].v,x1=lx[ia+1].v,y0=ly[jb].v,y1=ly[jb+1].v;
+    const pts=[[x0,y0],[x1,y0],[x1,y1],[x0,y1]].map(p=>p.map(v=>+v.toFixed(6))),zs=(rf&&k==nz-1)?pts.map(p=>+zt(k,p[0],p[1]).toFixed(6)):null;
     const sl={z:Z[k],pts,t,mat:'H',fc,E,gw:24};if(zs){sl.zs=zs;sl.dia=false}ls.push(sl);
     if(q>0){const cg={z:Z[k],pts:pts.map(p=>p.slice()),q};if(zs)cg.zs=zs.slice();cs.push(cg)}}}}
  else if(s.slab&&pl)av.push('Pórtico plano: no se generan losas.');
  if(rf&&ls.some(q=>q.zs))av.push('La losa inclinada del techo no aporta rigidez de diafragma (su carga sí se reparte a las vigas).');
  const d={app:'zapel-3d',v:5,units:u,N:n,B:b,MUROS:mw,LOSAS:ls,CARGAS:cs,ZAPATAS:[],PLATEAS:[],ANOT:[],GRUPOS:[],sw:true};
- const resumen=(pl?'Pórtico plano':'Edificio')+': '+xs.length+' vano(s) en X'+(pl?'':' × '+ys.length+' en Y')+', '+st.length+' nivel(es)'+(rf?', techo '+(rf.ty=='gable'?'a dos aguas':'de una agua')+' (elevación '+(rf.rise/(IM?0.3048:1)).toFixed(1)+(IM?' ft':' m')+')':'')+' · '+
+ const resumen=(pl?'Pórtico plano':'Edificio')+': '+xs.length+' vano(s) en X'+(pl?'':' × '+ys.length+' en Y')+', '+st.length+' nivel(es)'+(rf?', techo '+(rf.ty=='gable'?'a dos aguas':'de una agua')+' (elevación '+(rf.rise/(IM?0.3048:1)).toFixed(1)+(IM?' ft':' m')+')':'')+(sp2.length?', con vigas intermedias':'')+' · '+
   n.length+' nudos, '+b.length+' barras, '+mw.length+' muros, '+ls.length+' losas.';
  return{d,resumen,av,notes:typeof s.notes=='string'?s.notes.slice(0,300):'',spec:{units:u}}}
 
-/* Planta poligonal regular: columnas en vértices (+centro), vigas radiales y/o perimetrales, muros por lado, losa triangular por lado */
+/* Planta poligonal regular: columnas en vértices (+centro), vigas radiales y/o perimetrales, anillos intermedios, muros por lado, losas triangulares */
 function iaPoly(s){
  const c=iaCtx(s),{u,IM,num,Lm,sec,secO,fc,E,av}=c;
  const n=Math.round(num(s.sides,8,3,16)),st=(Array.isArray(s.stories)?s.stories.slice(0,40):[]).map(v=>+v).filter(v=>isFinite(v)&&v>0);
@@ -3810,38 +3830,57 @@ function iaPoly(s){
  const rf=iaRoof(s.roof,c,{x0:0,x1:2*R,y0:0,y1:2*R,cx:R,cy:R,R,poly:true,planar:false});
  const zt=(k,x,y)=>Z[k]+(rf&&k==nz-1?rf.f(x,y):0);
  const cen=s.center!==false,spk=s.spokes!==false,ring=s.ring===true;
- const m=n+1,Zr=[0,0,0,0,0,0],raw=[],keep=[];
- for(let k=0;k<nz;k++)for(let i=0;i<=n;i++){
-  const a=2*Math.PI*(i-1)/n+Math.PI/n,x=i==0?R:R+R*Math.cos(a),y=i==0?R:R+R*Math.sin(a);
+ /* anillos intermedios por nivel */
+ const innL=Z.map(()=>null);
+ (Array.isArray(s.inner)?s.inner:(s.inner&&typeof s.inner=='object'?[s.inner]:[])).slice(0,6).forEach(o=>{
+  if(!o||typeof o!='object')return;
+  const fr=(Array.isArray(o.fracs)?o.fracs:(o.frac!=null?[o.frac]:[0.5])).map(Number).filter(v=>isFinite(v)&&v>0.05&&v<0.95).slice(0,4);if(!fr.length)return;
+  const a=Math.max(1,Math.round(num(o.s0,nz-1,1,nz-1))),b=Math.min(nz-1,Math.round(num(o.s1,nz-1,1,nz-1))),sc=secO(o,IM?10:250,IM?20:500);
+  for(let k=Math.min(a,b);k<=Math.max(a,b);k++){if(!innL[k])innL[k]={fr:[],sec:sc};fr.forEach(v=>{if(!innL[k].fr.some(q=>Math.abs(q-v)<1e-6))innL[k].fr.push(v)});innL[k].sec=sc}});
+ innL.forEach(o=>{if(o)o.fr.sort((a,b)=>a-b)});
+ const Zr=[0,0,0,0,0,0],nodes=[],mp=new Map(),key=(k,t,i)=>k+'|'+t+'|'+i;
+ const ang=i=>2*Math.PI*i/n+Math.PI/n,pos=(f,i)=>[R+f*R*Math.cos(ang(i)),R+f*R*Math.sin(ang(i))];
+ const addN=(k,t,i,f)=>{const p=t==0?[R,R]:pos(f,i);
   const r=k==0?(pin?[1,1,1,0,0,0]:[1,1,1,1,1,1]):Zr.slice();
-  raw.push({x:+x.toFixed(6),y:+y.toFixed(6),z:+zt(k,x,y).toFixed(6),r,f:Zr.slice()});keep.push(!(k==0&&i==0&&!cen))}
- const map=[];let cc=0;raw.forEach((_,q)=>{map.push(keep[q]?cc++:-1)});
- const nodes=raw.filter((_,q)=>keep[q]),id=(k,i)=>map[k*m+i];
- const b=[],bar=(i,j,o)=>{if(i>=0&&j>=0)b.push({i,j,b:o.b,h:o.h,fc,E})};
- for(let k=0;k<nz-1;k++)for(let i=0;i<=n;i++){if(i==0&&!cen)continue;bar(id(k,i),id(k+1,i),colL[k+1])}
+  mp.set(key(k,t,i),nodes.length);nodes.push({x:+p[0].toFixed(6),y:+p[1].toFixed(6),z:+zt(k,p[0],p[1]).toFixed(6),r,f:Zr.slice()})};
+ const fl=k=>[0,...(innL[k]?innL[k].fr:[]),1];            /* fracciones del radio en el nivel k */
+ for(let k=0;k<nz;k++){
+  const F=fl(k);
+  if(!(k==0&&!cen))addN(k,0,0,0);
+  for(let t=1;t<F.length;t++)for(let i=0;i<n;i++)addN(k,t,i,F[t])}
+ if(nodes.length>3000)throw new Error('El modelo tiene demasiados nudos ('+nodes.length+'). Máximo 3000.');
+ const C=k=>mp.get(key(k,0,0)),T=k=>fl(k).length-1,V=(k,i)=>mp.get(key(k,T(k),((i%n)+n)%n)),M=(k,t,i)=>mp.get(key(k,t,((i%n)+n)%n));
+ const b=[],bar=(i,j,o)=>{if(i!=null&&j!=null&&i>=0&&j>=0)b.push({i,j,b:o.b,h:o.h,fc,E})};
+ for(let k=0;k<nz-1;k++){if(cen)bar(C(k),C(k+1),colL[k+1]);for(let i=0;i<n;i++)bar(V(k,i),V(k+1,i),colL[k+1])}
  for(let k=1;k<nz;k++){
-  if(spk)for(let i=1;i<=n;i++)bar(id(k,0),id(k,i),bmL[k]);
-  if(ring)for(let i=1;i<=n;i++)bar(id(k,i),id(k,i%n+1),bmL[k])}
- if(!spk&&!ring)av.push('Sin vigas: las columnas no quedan unidas entre sí en cada nivel.');
+  const Tk=T(k);
+  if(spk)for(let i=0;i<n;i++){let prev=C(k);for(let t=1;t<=Tk;t++){const cur=t==Tk?V(k,i):M(k,t,i);bar(prev,cur,bmL[k]);prev=cur}}
+  if(ring)for(let i=0;i<n;i++)bar(V(k,i),V(k,i+1),bmL[k]);
+  if(innL[k])for(let t=1;t<Tk;t++)for(let i=0;i<n;i++)bar(M(k,t,i),M(k,t,i+1),innL[k].sec)}
+ if(!spk&&!ring&&!innL.some(Boolean))av.push('Sin vigas: las columnas no quedan unidas entre sí en cada nivel.');
  const mw=[];
  if(s.walls){
   const W=typeof s.walls=='object'?s.walls:{},t=sec(num(W.t,IM?8:200,IM?2:50,IM?48:1200));
   const sides=Array.isArray(W.sides)?W.sides.map(v=>Math.round(+v)).filter(v=>v>=0&&v<n):[...Array(n).keys()];
   let s0=Math.round(num(W.s0,1,1,nz-1)),s1=Math.round(num(W.s1,nz-1,1,nz-1));if(s0>s1)[s0,s1]=[s1,s0];
-  sides.forEach(q=>{const v1=q+1,v2=q+2>n?1:q+2;for(let k=s0;k<=s1;k++)mw.push({n:[id(k-1,v1),id(k-1,v2),id(k,v2),id(k,v1)],t,mat:'H',fc,E,gw:24,rig:1,fix:k==1?1:0})})}
+  sides.forEach(q=>{for(let k=s0;k<=s1;k++)mw.push({n:[V(k-1,q),V(k-1,q+1),V(k,q+1),V(k,q)],t,mat:'H',fc,E,gw:24,rig:1,fix:k==1?1:0})})}
  const ls=[],cs=[];
  if(s.slab&&typeof s.slab=='object'){
   const slL=iaLev(s.slab,nz);
   for(let k=1;k<nz;k++){
-   const o=slL[k],t=sec(num(o.t,IM?6:150,IM?2:50,IM?36:900)),q=num(o.q,IM?50:2.4,0,IM?1000:50)*(IM?0.04788:1);
-   for(let i=1;i<=n;i++){
-    const A=raw[k*m],B1=raw[k*m+i],C=raw[k*m+i%n+1],pts=[[A.x,A.y],[B1.x,B1.y],[C.x,C.y]],zs=(rf&&k==nz-1)?[A.z,B1.z,C.z]:null;
+   const o=slL[k],t=sec(num(o.t,IM?6:150,IM?2:50,IM?36:900)),q=num(o.q,IM?50:2.4,0,IM?1000:50)*(IM?0.04788:1),Tk=T(k);
+   const P=id=>{const nd=nodes[id];return[nd.x,nd.y,nd.z]};
+   const tri=(a,b2,c2)=>{const A=P(a),B1=P(b2),C2=P(c2),pts=[[A[0],A[1]],[B1[0],B1[1]],[C2[0],C2[1]]],zs=(rf&&k==nz-1)?[A[2],B1[2],C2[2]]:null;
     const sl={z:Z[k],pts,t,mat:'H',fc,E,gw:24};if(zs){sl.zs=zs;sl.dia=false}ls.push(sl);
-    if(q>0){const cg={z:Z[k],pts:pts.map(p=>p.slice()),q};if(zs)cg.zs=zs.slice();cs.push(cg)}}}}
+    if(q>0){const cg={z:Z[k],pts:pts.map(p=>p.slice()),q};if(zs)cg.zs=zs.slice();cs.push(cg)}};
+   const nd=(t2,i)=>t2==Tk?V(k,i):M(k,t2,i);
+   for(let i=0;i<n;i++){
+    tri(C(k),nd(1,i),nd(1,i+1));
+    for(let t2=1;t2<Tk;t2++){tri(nd(t2,i),nd(t2+1,i),nd(t2+1,i+1));tri(nd(t2,i),nd(t2+1,i+1),nd(t2,i+1))}}}}
  if(rf&&ls.some(q=>q.zs))av.push('La losa inclinada del techo no aporta rigidez de diafragma (su carga sí se reparte a las vigas).');
  const d={app:'zapel-3d',v:5,units:u,N:nodes,B:b,MUROS:mw,LOSAS:ls,CARGAS:cs,ZAPATAS:[],PLATEAS:[],ANOT:[],GRUPOS:[],sw:true};
  const lado=2*R*Math.sin(Math.PI/n)/(IM?0.3048:1);
- const resumen='Polígono de '+n+' lados (lado '+lado.toFixed(2)+(IM?' ft':' m')+'), '+st.length+' nivel(es)'+(rf?', techo '+(rf.ty=='pyramid'?'piramidal':rf.ty=='gable'?'a dos aguas':'de una agua')+' (elevación '+(rf.rise/(IM?0.3048:1)).toFixed(1)+(IM?' ft':' m')+')':'')+' · '+nodes.length+' nudos, '+b.length+' barras, '+mw.length+' muros, '+ls.length+' losas.';
+ const resumen='Polígono de '+n+' lados (lado '+lado.toFixed(2)+(IM?' ft':' m')+'), '+st.length+' nivel(es)'+(rf?', techo '+(rf.ty=='pyramid'?'piramidal':rf.ty=='gable'?'a dos aguas':'de una agua')+' (elevación '+(rf.rise/(IM?0.3048:1)).toFixed(1)+(IM?' ft':' m')+')':'')+(innL.some(Boolean)?', con anillos de vigas intermedias':'')+' · '+nodes.length+' nudos, '+b.length+' barras, '+mw.length+' muros, '+ls.length+' losas.';
  return{d,resumen,av,notes:typeof s.notes=='string'?s.notes.slice(0,300):'',spec:{units:u}}}
 
 function iaExtraeJSON(t){
